@@ -4,11 +4,13 @@
 
 ## 安装
 
-- [windows 安装包]: 适用于 Windows 10 及更高版本平台的 64 位可执行安装程序。
+- [windows msi安装包]: 适用于 Windows 10 及更高版本平台的 64 位 msi 安装程序压缩包。
+- [windows exe安装包]: 适用于 Windows 10 及更高版本平台的 64 位 exe 安装程序压缩包。
 - [windows 免安装]: 适用于 Windows 10 及更高版本平台的 64 位可执行文件压缩包，无需安装。
 
-[windows 安装包]: https://gitee.com/
-[windows 免安装]: https://gitee.com/
+[windows msi安装包]: https://github.com/user-attachments/files/16739433/Crosshair.Studio_0.0.1_x64_windows_10_msi.zip
+[windows exe安装包]: https://github.com/user-attachments/files/16739434/Crosshair.Studio_0.0.1_x64_windows_10_setup.zip
+[windows 免安装]: https://github.com/user-attachments/files/16739437/Crosshair.Studio_0.0.1_x64_windows_10_portable.zip
 
 ## 使用
 

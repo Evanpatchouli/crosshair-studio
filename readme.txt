@@ -4,11 +4,13 @@
 
 ## Installation
 
-- [Windows Installer]: An executable installer for 64-bit Windows 10 and later platforms.
+- [Windows msi Installer]: An executable msi installer for 64-bit Windows 10 and later platforms.
+- [Windows exe Installer]: An executable exe installer for 64-bit Windows 10 and later platforms.
 - [Windows Portable]: A compressed executable file for 64-bit Windows 10 and later platforms, no installation required.
 
-[Windows Installer]: https://gitee.com/
-[Windows Portable]: https://gitee.com/
+[Windows msi Installer]: https://github.com/user-attachments/files/16739433/Crosshair.Studio_0.0.1_x64_windows_10_msi.zip
+[Windows exe Installer]: https://github.com/user-attachments/files/16739434/Crosshair.Studio_0.0.1_x64_windows_10_setup.zip
+[Windows Portable]: https://github.com/user-attachments/files/16739437/Crosshair.Studio_0.0.1_x64_windows_10_portable.zip
 
 ## Usage
 
