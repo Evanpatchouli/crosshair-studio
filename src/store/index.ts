@@ -13,6 +13,7 @@ type StoreState = {
   version: string;
   crosshair_dictionary: string;
   default_crosshair?: string;
+  ignoreCursorEvents: boolean;
 };
 
 // @ts-ignore

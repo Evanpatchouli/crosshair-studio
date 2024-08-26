@@ -22,10 +22,8 @@ After the program is started, the crosshair is placed on the top layer by defaul
 - System Tray: After the program is running, an icon will be displayed in the system tray. Right-click the icon to open the menu:
   - 固定置顶: Fix the crosshair on the top layer of the desktop
   - 取消置顶: Unpin the crosshair from the top layer of the desktop
-  - 显示应用: Show the app and crosshair
-  - 隐藏应用: Hide the app and crosshair
-  - 鼠标穿透 On: The crosshair image will not block the click events of other windows
-  - 鼠标穿透 Off: The crosshair image will block the click events of other windows
+  - 隐藏应用（显示应用）: Show or hide the app and crosshair
+  - 鼠标穿透（开/关）: Whether the crosshair image will not block the click events of other windows
   - 换准星: Switch crosshair in order in the crosshair directory
   - 切换默认准星: Switch to the set default crosshair (default to the first crosshair when not set)
   - 设为默认准星: Set the crosshair of the current app as the default crosshair
@@ -36,11 +34,11 @@ After the program is started, the crosshair is placed on the top layer by defaul
   - `Ctrl + Alt + Q`: Switch crosshair
   - `Ctrl + Alt + W`: Switch default crosshair (not supported yet)
   - `Ctrl + Alt + S`: Set as default crosshair (not supported yet)
-  - `Ctrl + Alt + P`: Pin to Top On/Off (not supported yet)
-  - `Ctrl + Alt + T`: Mouse Penetration On/Off (not supported yet)
+  - `Ctrl + Alt + P`: Pin to Top On/Off
+  - `Ctrl + Alt + T`: Mouse Penetration On/Off
   - `Ctrl + Alt + C`: Open console (not supported yet)
   - `Ctrl + Alt + R`: Restart the app
-  - `Ctrl + Alt + E`: Exit the app (not supported yet)
+  - `Ctrl + Alt + E`: Exit the app
 - App Hotkeys: (App-level hotkeys)
   - `Q`: Switch crosshair
 

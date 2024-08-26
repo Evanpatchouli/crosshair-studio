@@ -42,10 +42,6 @@ export default function Crosshair() {
   }; //data-tauri-drag-region
 
   // const crossfairs = Array.from({ length: 7 }, (_, i) => `./crosshairs/${i + 1}.png`);
-
-  useEffect(() => {
-    appWindow.setIgnoreCursorEvents(true);
-  }, []);
   useEffect(() => {
     appWindow.setAlwaysOnTop(cache.isAlwaysOnTop);
   }, [cache.isAlwaysOnTop]);
@@ -79,10 +75,14 @@ export default function Crosshair() {
     const unlisten_set_as_default_cross = await listen("set_as_default_cross", () => {
       cache.setCurrentCrosshairAsDefault();
     });
+    const unlisten_toggle_ignore_cursor_event = await listen("toggle_ignore_cursor_event", () => {
+      cache.toggleIgnoreCursorEvents();
+    });
     const unlisten = () => {
       unlinsten_switch_cross();
       unlisten_switch_to_default_cross();
       unlisten_set_as_default_cross();
+      unlisten_toggle_ignore_cursor_event();
     };
     return unlisten;
   }, [idx, imglist.length]);

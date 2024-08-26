@@ -1,55 +1,13 @@
 import useAsyncEffect from "./useAsyncEffect";
 import { path } from "@tauri-apps/api";
-import { invoke, isRegistered, register, sleep, unregister } from "../utils";
-import useCache, { Cache } from "../cache";
+import { invoke, sleep } from "../utils";
+import useCache from "../cache";
 import store from "../store";
 import { version } from "../../package.json";
 import { useHotkeys } from "react-hotkeys-hook";
+import globalHotKeys from "../hotkeys/globalHotKeys";
 import toast from "react-hot-toast";
-import { relaunch } from "@tauri-apps/api/process";
-
-const globalHotKeys = {
-  switchIdx: {
-    isRegistered: false,
-    keys: ["Ctrl", "Alt", "Q"] as const,
-    handler: (cache: Cache) => {
-      cache.switchIdx();
-    },
-    async register(cache: Cache) {
-      globalHotKeys.switchIdx.isRegistered = await isRegistered(globalHotKeys.switchIdx.keys);
-      if (!globalHotKeys.switchIdx.isRegistered) {
-        await register(globalHotKeys.switchIdx.keys, globalHotKeys.switchIdx.handler.bind(null, cache));
-        globalHotKeys.switchIdx.isRegistered = true;
-      }
-    },
-    async unregister() {
-      if (globalHotKeys.switchIdx.isRegistered) {
-        await unregister(globalHotKeys.switchIdx.keys);
-        globalHotKeys.switchIdx.isRegistered = false;
-      }
-    },
-  },
-  reload: {
-    isRegistered: false,
-    keys: ["Ctrl", "Alt", "R"] as const,
-    handler: () => {
-      relaunch();
-    },
-    async register() {
-      globalHotKeys.reload.isRegistered = await isRegistered(globalHotKeys.reload.keys);
-      if (!globalHotKeys.reload.isRegistered) {
-        await register(globalHotKeys.reload.keys, globalHotKeys.reload.handler);
-        globalHotKeys.reload.isRegistered = true;
-      }
-    },
-    async unregister() {
-      if (globalHotKeys.reload.isRegistered) {
-        await unregister(globalHotKeys.reload.keys);
-        globalHotKeys.reload.isRegistered = false;
-      }
-    },
-  },
-};
+import { appWindow } from "@tauri-apps/api/window";
 
 export default function useInit() {
   const cache = useCache();
@@ -75,6 +33,7 @@ export default function useInit() {
     async () => {
       await sleep(2000);
       await store.set("version", version);
+
       let crosshair_dir = "";
       const appDir = await invoke("get_appdir");
       const stored_crosshair_dir = await store.get("crosshair_dictionary");
@@ -110,12 +69,26 @@ export default function useInit() {
       cache.setDefaultCrosshair(default_crosshair, true);
       cache.switchToCrosshairByPath(default_crosshair);
 
-      await Promise.all([globalHotKeys.switchIdx.register(cache), globalHotKeys.reload.register()]);
+      await Promise.all([
+        appWindow.setIgnoreCursorEvents(cache.ignoreCursorEvents),
+        store.set("ignoreCursorEvents", cache.ignoreCursorEvents)
+      ])
+
+      await Promise.all([
+        globalHotKeys.switchIdx.register(cache),
+        globalHotKeys.reload.register(),
+        globalHotKeys.togglePinned.register(cache),
+        globalHotKeys.toggleIgnoreCursorEvents.register(cache),
+        globalHotKeys.exit.register(),
+      ]);
 
       setIsInitiated(true);
       return () => {
         globalHotKeys.switchIdx.unregister();
         globalHotKeys.reload.unregister();
+        globalHotKeys.togglePinned.unregister();
+        globalHotKeys.toggleIgnoreCursorEvents.unregister();
+        globalHotKeys.exit.unregister();
       };
     },
     [],

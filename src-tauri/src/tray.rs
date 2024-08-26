@@ -6,12 +6,9 @@ use tauri::{
 pub fn tray() -> SystemTray {
     let pin: CustomMenuItem = CustomMenuItem::new("pin".to_string(), "固定置顶");
     let unpin: CustomMenuItem = CustomMenuItem::new("unpin".to_string(), "取消置顶");
-    let show: CustomMenuItem = CustomMenuItem::new("show".to_string(), "显示应用");
-    let hide: CustomMenuItem = CustomMenuItem::new("hide".to_string(), "隐藏引用");
-    let ignore_cursor_event: CustomMenuItem =
-        CustomMenuItem::new("ignore_cursor_event".to_string(), "鼠标穿透 On");
-    let use_cursor_event: CustomMenuItem =
-        CustomMenuItem::new("use_cursor_event".to_string(), "鼠标穿透 Off");
+    let show_or_hide: CustomMenuItem = CustomMenuItem::new("show_or_hide".to_string(), "隐藏应用");
+    let toggle_ignore_cursor_event: CustomMenuItem =
+        CustomMenuItem::new("toggle_ignore_cursor_event".to_string(), "鼠标穿透 (开/关)");
     let switch_cross: CustomMenuItem = CustomMenuItem::new("switch_cross".to_string(), "切换准星");
     let switch_to_default_cross: CustomMenuItem =
         CustomMenuItem::new("switch_to_default_cross".to_string(), "切换默认准星");
@@ -25,16 +22,12 @@ pub fn tray() -> SystemTray {
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(unpin)
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(show)
+        .add_item(show_or_hide)
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(hide)
-        .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(ignore_cursor_event)
-        .add_item(use_cursor_event)
+        .add_item(toggle_ignore_cursor_event)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(switch_cross)
         .add_item(switch_to_default_cross)
-        .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(set_as_default_cross)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(monitor)
@@ -50,7 +43,6 @@ pub fn tray() -> SystemTray {
 pub fn tray_handler(app: &AppHandle, event: SystemTrayEvent) {
     // 获取应用窗口
     let window = app.get_window("main").unwrap();
-    // let parent_window = Some(&window);
     // 匹配点击事件
     match event {
         // 左键点击
@@ -77,48 +69,61 @@ pub fn tray_handler(app: &AppHandle, event: SystemTrayEvent) {
         } => {
             println!("system tray received a double click");
         }
-        // 根据菜单 id 进行事件匹配
-        SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-            "pin" => {
-                window.set_always_on_top(true).unwrap();
+        // 根据菜单 id 进行事件匹配 let item_handle = app.tray_handle().get_item(&id);
+        SystemTrayEvent::MenuItemClick { id, .. } => {
+            let item_handle = app.tray_handle().get_item(&id);
+            match id.as_str() {
+                "pin" => {
+                    window.set_always_on_top(true).unwrap();
+                }
+                "unpin" => {
+                    window.set_always_on_top(false).unwrap();
+                }
+                "show_or_hide" => {
+                    let visible = window.is_visible().unwrap();
+                    if visible {
+                        window.hide().unwrap();
+                        item_handle.set_title("显示应用").unwrap();
+                    } else {
+                        window.show().unwrap();
+                        item_handle.set_title("隐藏应用").unwrap();
+                    }
+                }
+                "toggle_ignore_cursor_event" => {
+                    // let ignore_cursor_events: bool =
+                    //     Store::get(&self, "ignoreCursorEvents").unwrap();
+                    // item_handle.set_title(if ignore_cursor_events {
+                    //     "鼠标穿透 (关)"
+                    // } else {
+                    //     "鼠标穿透 (开)"
+                    // });
+                    app.emit_to("main", "toggle_ignore_cursor_event", true)
+                        .unwrap();
+                }
+                "switch_cross" => {
+                    app.emit_to("main", "switch_cross", true).unwrap();
+                }
+                "switch_to_default_cross" => {
+                    app.emit_to("main", "switch_to_default_cross", true)
+                        .unwrap();
+                }
+                "set_as_default_cross" => {
+                    app.emit_to("main", "set_as_default_cross", true).unwrap();
+                }
+                "monitor" => {
+                    app.emit_to("main", "monitor", true).unwrap();
+                }
+                "reload" => {
+                    // app.emit_all("reload", true).unwrap();
+                    app.restart();
+                }
+                "quit" => {
+                    window.hide().unwrap();
+                    std::process::exit(0);
+                }
+                _ => {}
             }
-            "unpin" => {
-                window.set_always_on_top(false).unwrap();
-            }
-            "show" => {
-                window.show().unwrap();
-            }
-            "hide" => {
-                window.hide().unwrap();
-            }
-            "ignore_cursor_event" => {
-                window.set_ignore_cursor_events(true).unwrap();
-            }
-            "use_cursor_event" => {
-                window.set_ignore_cursor_events(false).unwrap();
-            }
-            "switch_cross" => {
-                app.emit_all("switch_cross", true).unwrap();
-            }
-            "switch_to_default_cross" => {
-                app.emit_all("switch_to_default_cross", true).unwrap();
-            }
-            "set_as_default_cross" => {
-                app.emit_all("set_as_default_cross", true).unwrap();
-            }
-            "monitor" => {
-                app.emit_all("monitor", true).unwrap();
-            }
-            "reload" => {
-                // app.emit_all("reload", true).unwrap();
-                app.restart();
-            }
-            "quit" => {
-                window.hide().unwrap();
-                std::process::exit(0);
-            }
-            _ => {}
-        },
+        }
         _ => {}
     }
 }

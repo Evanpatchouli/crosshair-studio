@@ -2,12 +2,15 @@ import toast from "react-hot-toast";
 import { create } from "zustand";
 import { getNameOfFilePath } from "../utils/index";
 import store from "../store";
+import { appWindow } from "@tauri-apps/api/window";
 
 export type Cache = {
   isInitiated: boolean;
+  setIsInitiated: (bool: boolean) => void;
   isAlwaysOnTop: boolean;
   toggleAlwaysOnTop(options?: { onTop?: () => void; offTop?: () => void }): void;
-  setIsInitiated: (bool: boolean) => void;
+  ignoreCursorEvents: boolean;
+  toggleIgnoreCursorEvents: () => void;
   crosshair_dictionary: string;
   set_crosshair_dictionary: (value: string) => void;
   imglist: string[];
@@ -27,6 +30,14 @@ export type Cache = {
 const useCache = create<Cache>((set, getState) => ({
   isInitiated: false,
   setIsInitiated: (bool: boolean) => set(() => ({ isInitiated: bool })),
+  ignoreCursorEvents: true,
+  toggleIgnoreCursorEvents: () => {
+    set((state) => ({ ignoreCursorEvents: !state.ignoreCursorEvents }));
+    queueMicrotask(() => {
+      appWindow.setIgnoreCursorEvents(getState().ignoreCursorEvents);
+      store.set("ignoreCursorEvents", getState().ignoreCursorEvents);
+    });
+  },
   isAlwaysOnTop: true,
   toggleAlwaysOnTop: (options) =>
     set((state) => {

@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Crosshair Studio",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
@@ -27,6 +27,12 @@
       },
       "globalShortcut": {
         "all": true
+      },
+      "process": {
+        "all": false,
+        "exit": true,
+        "relaunch": true,
+        "relaunchDangerousAllowSymlinkMacos": false
       }
     },
     "windows": [
