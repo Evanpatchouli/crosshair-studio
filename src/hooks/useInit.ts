@@ -1,6 +1,6 @@
 import useAsyncEffect from "./useAsyncEffect";
 import { path } from "@tauri-apps/api";
-import { invoke, sleep } from "../utils";
+import { getNameOfFilePath, invoke, sleep } from "../utils";
 import useCache from "../cache";
 import store from "../store";
 import { version } from "../../package.json";
@@ -21,7 +21,7 @@ export default function useInit() {
       const res = await invoke("get_images_from_directory", {
         directory: directory,
       });
-      cache.setImglist(res || []);
+      cache.setImglist((res || []).map(file => getNameOfFilePath(file)));
     } catch (error: any) {
       console.error("Failed to query images:", error);
       toast.error("Failed to query images from directory for reason: " + error.message);
@@ -33,11 +33,12 @@ export default function useInit() {
     async () => {
       await sleep(2000);
       await store.set("version", version);
+      // await store.set("crosshair_dictionary", "${APP_DIR}/crosshairs")
 
       let crosshair_dir = "";
       const appDir = await invoke("get_appdir");
       const stored_crosshair_dir = await store.get("crosshair_dictionary");
-      const default_crosshair_dir = "${APP_DIR}/crosshair"; //await path.resolve(appDir, "crosshairs");
+      const default_crosshair_dir = "${APP_DIR}/crosshairs"; //await path.resolve(appDir, "crosshairs");
 
       // 判断是否为开发环境
       const isDev = await invoke("is_dev");
@@ -50,11 +51,11 @@ export default function useInit() {
         const crosshair_under_appdir = await path.resolve(appDir, "crosshairs");
 
         if (default_crosshair_dir === stored_crosshair_dir) {
-          // 默认为 "${APP_DIR}/crosshair"
+          // 默认为 "${APP_DIR}/crosshairs"
           crosshair_dir = crosshair_under_appdir;
         } else {
           // 用户更改了 crosshair_dictionary
-          crosshair_dir = await path.resolve(stored_crosshair_dir);
+          crosshair_dir = await path.resolve(stored_crosshair_dir || default_crosshair_dir);
         }
       }
 
@@ -75,19 +76,23 @@ export default function useInit() {
       ])
 
       await Promise.all([
-        globalHotKeys.switchIdx.register(cache),
-        globalHotKeys.reload.register(),
         globalHotKeys.togglePinned.register(cache),
         globalHotKeys.toggleIgnoreCursorEvents.register(cache),
+        globalHotKeys.switchIdx.register(cache),
+        globalHotKeys.switchToDefaultCrosshair.register(cache),
+        globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
+        globalHotKeys.reload.register(),
         globalHotKeys.exit.register(),
       ]);
 
       setIsInitiated(true);
       return () => {
-        globalHotKeys.switchIdx.unregister();
-        globalHotKeys.reload.unregister();
         globalHotKeys.togglePinned.unregister();
         globalHotKeys.toggleIgnoreCursorEvents.unregister();
+        globalHotKeys.switchIdx.unregister();
+        globalHotKeys.switchToDefaultCrosshair.unregister();
+        globalHotKeys.setCurrentCrosshairAsDefault.unregister();
+        globalHotKeys.reload.unregister();
         globalHotKeys.exit.unregister();
       };
     },

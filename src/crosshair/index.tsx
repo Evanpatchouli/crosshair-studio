@@ -7,6 +7,7 @@ import { getExtOfFile, invoke } from "../utils";
 import useCache from "../cache";
 import unknownSvg from "/unknown.svg";
 import "./index.css";
+import { path } from "@tauri-apps/api";
 
 const blobType: {
   [key: string]: string;
@@ -52,8 +53,9 @@ export default function Crosshair() {
     if (!imglist[idx || 0]) {
       return Promise.reject("no img");
     }
+    const filePath = await path.resolve(cache.crosshair_dictionary, imglist[idx || 0]);
     const data = await invoke("read_image", {
-      path: imglist[idx || 0],
+      path: filePath,
     }); // 字节数组
     if (data) {
       // 设置为图片 blobType[getExtOfFile(imglist[idx || 0])]

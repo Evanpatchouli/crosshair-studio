@@ -2,7 +2,6 @@ import { exit, relaunch } from "@tauri-apps/api/process";
 import { type Cache } from "../cache";
 import { isRegistered, register, unregister } from "../utils";
 import toast from "react-hot-toast";
-import { appWindow } from "@tauri-apps/api/window";
 
 const globalHotKeys = {
   switchIdx: {
@@ -22,6 +21,46 @@ const globalHotKeys = {
       if (globalHotKeys.switchIdx.isRegistered) {
         await unregister(globalHotKeys.switchIdx.keys);
         globalHotKeys.switchIdx.isRegistered = false;
+      }
+    },
+  },
+  switchToDefaultCrosshair: {
+    isRegistered: false,
+    keys: ["Ctrl", "Alt", "D"] as const,
+    handler: (cache: Cache) => {
+      cache.switchToDefaultCrosshair();
+    },
+    async register(cache: Cache) {
+      globalHotKeys.switchToDefaultCrosshair.isRegistered = await isRegistered(globalHotKeys.switchToDefaultCrosshair.keys);
+      if (!globalHotKeys.switchToDefaultCrosshair.isRegistered) {
+        await register(globalHotKeys.switchToDefaultCrosshair.keys, globalHotKeys.switchToDefaultCrosshair.handler.bind(null, cache));
+        globalHotKeys.switchToDefaultCrosshair.isRegistered = true;
+      }
+    },
+    async unregister() {
+      if (globalHotKeys.switchToDefaultCrosshair.isRegistered) {
+        await unregister(globalHotKeys.switchToDefaultCrosshair.keys);
+        globalHotKeys.switchToDefaultCrosshair.isRegistered = false;
+      }
+    },
+  },
+  setCurrentCrosshairAsDefault: {
+    isRegistered: false,
+    keys: ["Ctrl", "Alt", "S"] as const,
+    handler: (cache: Cache) => {
+      cache.setCurrentCrosshairAsDefault();
+    },
+    async register(cache: Cache) {
+      globalHotKeys.setCurrentCrosshairAsDefault.isRegistered = await isRegistered(globalHotKeys.setCurrentCrosshairAsDefault.keys);
+      if (!globalHotKeys.setCurrentCrosshairAsDefault.isRegistered) {
+        await register(globalHotKeys.setCurrentCrosshairAsDefault.keys, globalHotKeys.setCurrentCrosshairAsDefault.handler.bind(null, cache));
+        globalHotKeys.setCurrentCrosshairAsDefault.isRegistered = true;
+      }
+    },
+    async unregister() {
+      if (globalHotKeys.setCurrentCrosshairAsDefault.isRegistered) {
+        await unregister(globalHotKeys.setCurrentCrosshairAsDefault.keys);
+        globalHotKeys.setCurrentCrosshairAsDefault.isRegistered = false;
       }
     },
   },
