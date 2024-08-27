@@ -35,7 +35,7 @@
   - `Ctrl + Alt + W`：切换默认准星 （尚未支持）
   - `Ctrl + Alt + S`：设为默认准星 （尚未支持）
   - `Ctrl + Alt + P`：置顶 开/关
-  - `Ctrl + Alt + T`：穿透 开/关 （尚未支持）
+  - `Ctrl + Alt + T`：穿透 开/关
   - `Ctrl + Alt + C`：打开控制台 （尚未支持）
   - `Ctrl + Alt + R`：重启应用
   - `Ctrl + Alt + E`：退出应用
