@@ -8,9 +8,10 @@
 - [windows exe 安装包]: 适用于 Windows 10 及更高版本平台的 64 位 exe 安装程序压缩包。
 - [windows 免安装]: 适用于 Windows 10 及更高版本平台的 64 位可执行文件压缩包，无需安装。
 
-[windows msi安装包]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_msi.zip
-[windows exe安装包]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_portable.zip
-[windows 绿色免安装]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_setup.zip
+[windows msi安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_msi.zip
+[windows exe安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
+[windows 绿色免安装]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
+
 
 ## 使用
 

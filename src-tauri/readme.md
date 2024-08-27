@@ -8,9 +8,9 @@
 - [Windows exe Installer]: An executable exe installer for 64-bit Windows 10 and later platforms.
 - [Windows Portable]: A compressed executable file for 64-bit Windows 10 and later platforms, no installation required.
 
-[Windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_msi.zip
-[Windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_portable.zip
-[Windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/blob/master/release/Crosshair%20Studio_1.0.0_x64_windows_10_setup.zip
+[windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_msi.zip
+[windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
+[windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
 
 ## Usage
 
