@@ -2,7 +2,7 @@
   "name": "crosshair-studio",
   "appname": "Crosshair Studio",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0-alpha",
   "author": {
     "name": "evanpatchouli"
   },
@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "tauri:dev": "set TAURI_DEV=1 && tauri dev",
     "tauri:build": "tauri build",
+    "before-tauri:build": "node ./dev/before-tauri-build.cjs",
     "collect-release": "node ./dev/collect_to_release.cjs"
   },
   "dependencies": {
@@ -27,9 +28,11 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",
+    "@types/node": "^22.5.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "connect-history-api-fallback": "^2.0.0",
     "fs-extra": "^11.2.0",
     "typescript": "^5.2.2",
     "vite": "^5.3.1"

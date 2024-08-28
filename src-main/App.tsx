@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "react-hot-toast";
 import useInit from "./hooks/useInit";
 import Splash from "./splash";

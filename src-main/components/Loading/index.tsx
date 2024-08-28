@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import "./index.css";
+import React from "react";
 
 interface LoadingProps<T> {
   on?: boolean;

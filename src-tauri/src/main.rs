@@ -29,6 +29,7 @@ fn main() {
             handler::read_image,
             handler::get_appdir,
             handler::is_dev,
+            handler::log
         ])
         .system_tray(system_tray)
         .on_system_tray_event(tray_handler)

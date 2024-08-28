@@ -4,6 +4,7 @@ import {
   isRegistered as tauriIsRegister,
 } from "@tauri-apps/api/globalShortcut";
 import { invoke as tauriInvoke } from "@tauri-apps/api";
+import { WebviewWindow } from "@tauri-apps/api/window";
 
 export function getExtOfFile(fileName: string): string {
   return (fileName || "").split(".").pop() || "";
@@ -34,6 +35,13 @@ type InvokeMap = {
     args: undefined;
     returns: boolean;
   };
+  log: {
+    args: {
+      level: LogLevel,
+      msg: string
+    }
+    returns: void;
+  }
 };
 
 export async function invoke<T extends InvokeMap[K]["returns"], K extends keyof InvokeMap>(
@@ -56,4 +64,9 @@ export async function unregister(keys: KeyNames[] | readonly KeyNames[]) {
 export async function isRegistered(keys: KeyNames[] | readonly KeyNames[]) {
   const cmd = keys.join("+");
   return await tauriIsRegister(cmd);
+}
+
+export function getMainWindow() {
+  const mainwindow = WebviewWindow.getByLabel("main")
+  return mainwindow;
 }
