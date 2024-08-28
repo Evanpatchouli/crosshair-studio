@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import useAsyncEffect from "../hooks/useAsyncEffect";
 import { getExtOfFile, getMainWindow, invoke } from "../utils";
 import useCache from "../cache";
-import unknownSvg from "/unknown.svg";
-import "./index.css";
 import { path } from "@tauri-apps/api";
 import React from "react";
+import unknownSvg from "/unknown.svg";
+import "./index.css";
 
 const blobType: {
   [key: string]: string;

@@ -43,7 +43,8 @@ export default function useInit() {
       const default_crosshair_dir = "${APP_DIR}/crosshairs"; //await path.resolve(appDir, "crosshairs");
 
       // 判断是否为开发环境
-      const isDev = await invoke("is_dev");
+      // const isDev = await invoke("is_dev");  // deprecated
+      const isDev = import.meta.env.DEV;
 
       if (isDev) {
         // 开发环境下，直接读取项目源码中 public/crosshairs
@@ -87,7 +88,7 @@ export default function useInit() {
           globalHotKeys.reload.register(),
           globalHotKeys.exit.register(),
         ]);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to register global hotkeys:", error);
         invoke('log', {
           level: 'ERROR',

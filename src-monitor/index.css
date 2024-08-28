@@ -1,0 +1,6 @@
+@import url(./variable.css);
+
+:root {
+  background-color: var(--monitor-background);
+  color: var(--monitor-text-color);
+}
