@@ -42,10 +42,6 @@ After the program is started, the crosshair is placed on the top layer by defaul
 - App Hotkeys: (App-level hotkeys)
   - `Q`: Switch crosshair
 
-## Uninstallation
-
-The Crosshair Studio software itself and its resource files are located in the installation directory, with only a data file of about 1kb stored in the `AppData\Roaming\com.crosshair-studio.app` folder in the user directory. If you need to completely uninstall Crosshair Studio, just uninstall it (or delete the software installation directory) and delete the data folder.
-
 ## Plan
 
 - [x] Full hotkey support

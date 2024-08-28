@@ -12,6 +12,7 @@
 [windows exe安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
 [windows 绿色免安装]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
 
+
 ## 使用
 
 双击打开程序，即可在桌面上显示一个透明的准星。程序默认内置了 7 种 `+` 符号作为准星图案，可自行切换。
@@ -41,11 +42,6 @@
   - `Ctrl + Alt + E`：退出应用
 - 应用快捷键：（应用级快捷键）
   - `Q`：切换准星
-
-## 卸载
-
-Crosshair Studio 软件本体及其资源文件均位于安装目录下，仅有大小约 1kb 的数据文件存储在用户目录下的 `AppData\Roaming\com.crosshair-studio.app` 文件夹中。
-如果需要完全卸载 Crosshair Studio，只需执行卸载（或删除软件安装目录）并删除该数据文件夹即可。
 
 ## 计划
 

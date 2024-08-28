@@ -111,8 +111,7 @@ pub fn tray_handler(app: &AppHandle, event: SystemTrayEvent) {
                     app.emit_to("main", "set_as_default_cross", true).unwrap();
                 }
                 "monitor" => {
-                    let monitor = app.get_window("monitor").unwrap();
-                    monitor.show().unwrap();
+                    app.emit_to("main", "monitor", true).unwrap();
                 }
                 "reload" => {
                     // app.emit_all("reload", true).unwrap();

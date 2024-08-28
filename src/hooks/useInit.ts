@@ -1,12 +1,13 @@
 import useAsyncEffect from "./useAsyncEffect";
 import { path } from "@tauri-apps/api";
-import { getMainWindow, getNameOfFilePath, invoke, sleep } from "../utils";
+import { getNameOfFilePath, invoke, sleep } from "../utils";
 import useCache from "../cache";
 import store from "../store";
 import { version } from "../../package.json";
 import { useHotkeys } from "react-hotkeys-hook";
 import globalHotKeys from "../hotkeys/globalHotKeys";
 import toast from "react-hot-toast";
+import { appWindow } from "@tauri-apps/api/window";
 
 export default function useInit() {
   const cache = useCache();
@@ -24,10 +25,6 @@ export default function useInit() {
     } catch (error: any) {
       console.error("Failed to query images:", error);
       toast.error("Failed to query images from directory for reason: " + error.message);
-      invoke('log', {
-        level: 'ERROR',
-        msg: 'Failed to query images from directory for reason:' + error.message
-      });
     } finally {
       cache.setIsQueryingImgs(false);
     }
@@ -37,6 +34,7 @@ export default function useInit() {
       await sleep(2000);
       await store.set("version", version);
       // await store.set("crosshair_dictionary", "${APP_DIR}/crosshairs")
+
       let crosshair_dir = "";
       const appDir = await invoke("get_appdir");
       const stored_crosshair_dir = await store.get("crosshair_dictionary");
@@ -73,27 +71,19 @@ export default function useInit() {
       cache.switchToCrosshairByPath(default_crosshair);
 
       await Promise.all([
-        getMainWindow()?.setIgnoreCursorEvents(cache.ignoreCursorEvents),
+        appWindow.setIgnoreCursorEvents(cache.ignoreCursorEvents),
         store.set("ignoreCursorEvents", cache.ignoreCursorEvents)
       ])
 
-      try {
-        await Promise.all([
-          globalHotKeys.togglePinned.register(cache),
-          globalHotKeys.toggleIgnoreCursorEvents.register(cache),
-          globalHotKeys.switchIdx.register(cache),
-          globalHotKeys.switchToDefaultCrosshair.register(cache),
-          globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
-          globalHotKeys.reload.register(),
-          globalHotKeys.exit.register(),
-        ]);
-      } catch (error) {
-        console.error("Failed to register global hotkeys:", error);
-        invoke('log', {
-          level: 'ERROR',
-          msg: `"Failed to register global hotkeys:" ${error.message || error.toString()}`
-        })
-      }
+      await Promise.all([
+        globalHotKeys.togglePinned.register(cache),
+        globalHotKeys.toggleIgnoreCursorEvents.register(cache),
+        globalHotKeys.switchIdx.register(cache),
+        globalHotKeys.switchToDefaultCrosshair.register(cache),
+        globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
+        globalHotKeys.reload.register(),
+        globalHotKeys.exit.register(),
+      ]);
 
       setIsInitiated(true);
       return () => {
@@ -110,7 +100,7 @@ export default function useInit() {
     {
       onError: (e: Error) => toast.error(e.message || "Failed to initiate"),
     }
-  ), [];
+  );
 
   useHotkeys("q", cache.switchIdx, [cache.idx]);
 

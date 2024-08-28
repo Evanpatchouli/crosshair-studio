@@ -12,13 +12,13 @@ pub fn console(msg: &str) {
     println!("[logger] {}", msg);
 }
 
-pub fn format_log_message(level: &str, msg: &str) -> String {
+fn format_log_message(level: &str, msg: &str) -> String {
     let log_message = format!("[logger][{}][{}] {}\n", level, now_time(), msg);
     return log_message;
 }
 
 #[allow(unused)]
-pub fn write_log(log_message: &str) {
+fn write_log(log_message: &str) {
     if !(is_dev::main()) {
         let mut file = OpenOptions::new()
             .create(true)

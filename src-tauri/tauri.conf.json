@@ -45,21 +45,7 @@
         "resizable": false,
         "center": true,
         "width": 400,
-        "height": 400,
-        "url": "main.html"
-      },
-      {
-        "label": "monitor",
-        "visible": false,
-        "transparent": true,
-        "decorations": true,
-        "hiddenTitle": false,
-        "title": "Monitor",
-        "resizable": true,
-        "center": true,
-        "width": 800,
-        "height": 600,
-        "url": "monitor.html"
+        "height": 400
       }
     ],
     "systemTray": {

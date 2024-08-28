@@ -1,13 +1,13 @@
+import { appWindow } from "@tauri-apps/api/window";
 import toast from "react-hot-toast";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import useAsyncEffect from "../hooks/useAsyncEffect";
-import { getExtOfFile, getMainWindow, invoke } from "../utils";
+import { getExtOfFile, invoke } from "../utils";
 import useCache from "../cache";
 import unknownSvg from "/unknown.svg";
 import "./index.css";
 import { path } from "@tauri-apps/api";
-import React from "react";
 
 const blobType: {
   [key: string]: string;
@@ -44,7 +44,7 @@ export default function Crosshair() {
 
   // const crossfairs = Array.from({ length: 7 }, (_, i) => `./crosshairs/${i + 1}.png`);
   useEffect(() => {
-    getMainWindow()?.setAlwaysOnTop(cache.isAlwaysOnTop);
+    appWindow.setAlwaysOnTop(cache.isAlwaysOnTop);
   }, [cache.isAlwaysOnTop]);
 
   const [imgsrc, setImgsrc] = useState<string>("");

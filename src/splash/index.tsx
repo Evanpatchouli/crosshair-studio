@@ -4,7 +4,6 @@ import { app } from "@tauri-apps/api";
 import tauriLogo from "/tauri.svg";
 import "./index.css";
 import Loading from "../components/Loading";
-import React from "react";
 
 export default function Splash() {
   const [appname, setAppname] = useState("");

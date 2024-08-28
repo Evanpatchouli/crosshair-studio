@@ -1,7 +1,8 @@
 import toast from "react-hot-toast";
 import { create } from "zustand";
-import { getMainWindow, getNameOfFilePath } from "../utils/index";
+import { getNameOfFilePath } from "../utils/index";
 import store from "../store";
+import { appWindow } from "@tauri-apps/api/window";
 
 export type Cache = {
   isInitiated: boolean;
@@ -33,7 +34,7 @@ const useCache = create<Cache>((set, getState) => ({
   toggleIgnoreCursorEvents: () => {
     set((state) => ({ ignoreCursorEvents: !state.ignoreCursorEvents }));
     queueMicrotask(() => {
-      getMainWindow()?.setIgnoreCursorEvents(getState().ignoreCursorEvents);
+      appWindow.setIgnoreCursorEvents(getState().ignoreCursorEvents);
       store.set("ignoreCursorEvents", getState().ignoreCursorEvents);
     });
   },
@@ -64,7 +65,7 @@ const useCache = create<Cache>((set, getState) => ({
   setDefaultCrosshair: (value?: string, silence: boolean = false) => {
     set(() => ({ defaultCrosshair: value }));
     if (value && !silence) {
-      toast.success(`设置默认准星成功`);
+      toast.success(`设置成功`);
     } else {
       !silence &&
         toast("未提供准星路径", {

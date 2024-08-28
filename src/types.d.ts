@@ -55,5 +55,3 @@ declare type KeyNames =
   | "PageUp"
   | "PageDown"
   | (string & {});
-
-declare type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG";
