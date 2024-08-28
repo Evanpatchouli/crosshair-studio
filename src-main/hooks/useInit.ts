@@ -1,6 +1,6 @@
-import useAsyncEffect from "./useAsyncEffect";
+import useAsyncEffect from "../../src-public/hooks/useAsyncEffect";
 import { path } from "@tauri-apps/api";
-import { getMainWindow, getNameOfFilePath, invoke, sleep } from "../utils";
+import { getMainWindow, getNameOfFilePath, invoke, sleep } from "@utils/index";
 import useCache from "../cache";
 import store from "../store";
 import { version } from "../../package.json";
@@ -85,6 +85,7 @@ export default function useInit() {
           globalHotKeys.switchIdx.register(cache),
           globalHotKeys.switchToDefaultCrosshair.register(cache),
           globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
+          globalHotKeys.monitor.register(),
           globalHotKeys.reload.register(),
           globalHotKeys.exit.register(),
         ]);
@@ -103,6 +104,7 @@ export default function useInit() {
         globalHotKeys.switchIdx.unregister();
         globalHotKeys.switchToDefaultCrosshair.unregister();
         globalHotKeys.setCurrentCrosshairAsDefault.unregister();
+        globalHotKeys.monitor.unregister();
         globalHotKeys.reload.unregister();
         globalHotKeys.exit.unregister();
       };

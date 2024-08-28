@@ -1,7 +1,7 @@
 // import { appname } from "../../package.json";
 import { useLayoutEffect, useState } from "react";
 import { app } from "@tauri-apps/api";
-import Loading from "../components/Loading";
+import Loading from "@components/Loading";
 import tauriLogo from "/tauri.svg";
 import "./index.css";
 

@@ -40,7 +40,7 @@ declare type KeyNames =
   | "Backspace"
   | "Tab"
   | "Shift"
-  | "Ctrl"
+  | "CommandOrControl"
   | "Alt"
   | "Meta"
   | "ArrowUp"

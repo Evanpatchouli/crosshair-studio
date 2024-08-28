@@ -1,12 +1,12 @@
 import { exit, relaunch } from "@tauri-apps/api/process";
 import { type Cache } from "../cache";
-import { isRegistered, register, unregister } from "../utils";
+import { getMonitorWindow, isRegistered, register, unregister } from "@utils/index";
 import toast from "react-hot-toast";
 
 const globalHotKeys = {
   switchIdx: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "Q"] as const,
+    keys: ["CommandOrControl", "Alt", "Q"] as const,
     handler: (cache: Cache) => {
       cache.switchIdx();
     },
@@ -24,9 +24,10 @@ const globalHotKeys = {
       }
     },
   },
+
   switchToDefaultCrosshair: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "D"] as const,
+    keys: ["CommandOrControl", "Alt", "D"] as const,
     handler: (cache: Cache) => {
       cache.switchToDefaultCrosshair();
     },
@@ -44,9 +45,10 @@ const globalHotKeys = {
       }
     },
   },
+
   setCurrentCrosshairAsDefault: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "S"] as const,
+    keys: ["CommandOrControl", "Alt", "S"] as const,
     handler: (cache: Cache) => {
       cache.setCurrentCrosshairAsDefault();
     },
@@ -64,29 +66,10 @@ const globalHotKeys = {
       }
     },
   },
-  reload: {
-    isRegistered: false,
-    keys: ["Ctrl", "Alt", "R"] as const,
-    handler: () => {
-      relaunch();
-    },
-    async register() {
-      globalHotKeys.reload.isRegistered = await isRegistered(globalHotKeys.reload.keys);
-      if (!globalHotKeys.reload.isRegistered) {
-        await register(globalHotKeys.reload.keys, globalHotKeys.reload.handler);
-        globalHotKeys.reload.isRegistered = true;
-      }
-    },
-    async unregister() {
-      if (globalHotKeys.reload.isRegistered) {
-        await unregister(globalHotKeys.reload.keys);
-        globalHotKeys.reload.isRegistered = false;
-      }
-    },
-  },
+
   togglePinned: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "P"] as const,
+    keys: ["CommandOrControl", "Alt", "P"] as const,
     handler: (cache: Cache) => {
       cache.toggleAlwaysOnTop({
         onTop() {
@@ -111,9 +94,10 @@ const globalHotKeys = {
       }
     },
   },
+
   toggleIgnoreCursorEvents: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "T"] as const,
+    keys: ["CommandOrControl", "Alt", "T"] as const,
     handler: (cache: Cache) => {
       cache.toggleIgnoreCursorEvents();
     },
@@ -136,9 +120,64 @@ const globalHotKeys = {
       }
     },
   },
+
+  monitor: {
+    isRegistered: false,
+    keys: ["CommandOrControl", "Alt", "C"] as const,
+    handler: async () => {
+      const monitor = getMonitorWindow();
+      // if (monitor?.isVisible) {
+      //   monitor.hide();
+      // } else {
+      //   monitor?.show();
+      // }
+      monitor?.show();
+      await monitor?.setAlwaysOnTop(true);
+      await monitor?.setFocus();
+      await monitor?.setAlwaysOnTop(false);
+      monitor?.onCloseRequested(() => {
+        monitor?.hide();
+      });
+    },
+    async register() {
+      globalHotKeys.monitor.isRegistered = await isRegistered(globalHotKeys.monitor.keys);
+      if (!globalHotKeys.monitor.isRegistered) {
+        await register(globalHotKeys.monitor.keys, globalHotKeys.monitor.handler);
+        globalHotKeys.monitor.isRegistered = true;
+      }
+    },
+    async unregister() {
+      if (globalHotKeys.monitor.isRegistered) {
+        await unregister(globalHotKeys.monitor.keys);
+        globalHotKeys.monitor.isRegistered = false;
+      }
+    },
+  },
+
+  reload: {
+    isRegistered: false,
+    keys: ["CommandOrControl", "Alt", "R"] as const,
+    handler: () => {
+      relaunch();
+    },
+    async register() {
+      globalHotKeys.reload.isRegistered = await isRegistered(globalHotKeys.reload.keys);
+      if (!globalHotKeys.reload.isRegistered) {
+        await register(globalHotKeys.reload.keys, globalHotKeys.reload.handler);
+        globalHotKeys.reload.isRegistered = true;
+      }
+    },
+    async unregister() {
+      if (globalHotKeys.reload.isRegistered) {
+        await unregister(globalHotKeys.reload.keys);
+        globalHotKeys.reload.isRegistered = false;
+      }
+    },
+  },
+
   exit: {
     isRegistered: false,
-    keys: ["Ctrl", "Alt", "E"] as const,
+    keys: ["CommandOrControl", "Alt", "E"] as const,
     handler: () => {
       // do something before exit...
       exit();
@@ -157,6 +196,6 @@ const globalHotKeys = {
       }
     },
   },
-};
+}
 
 export default globalHotKeys;

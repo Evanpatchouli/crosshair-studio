@@ -4,3 +4,8 @@
   background-color: var(--monitor-background);
   color: var(--monitor-text-color);
 }
+
+body {
+  margin: 0;
+  padding: 0;
+}

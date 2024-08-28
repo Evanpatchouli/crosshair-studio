@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { create } from "zustand";
-import { getMainWindow, getNameOfFilePath } from "../utils/index";
+import { getMainWindow, getNameOfFilePath } from "@utils/index";
 import store from "../store";
 
 export type Cache = {

@@ -70,3 +70,8 @@ export function getMainWindow() {
   const mainwindow = WebviewWindow.getByLabel("main")
   return mainwindow;
 }
+
+export function getMonitorWindow() {
+  const mainwindow = WebviewWindow.getByLabel("monitor")
+  return mainwindow;
+}

@@ -17,7 +17,11 @@
     "collect-release": "node ./dev/collect_to_release.cjs"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@evanpatchouli/react-hooks-kit": "^1.1.2",
+    "@mui/icons-material": "^6.0.0",
+    "@mui/material": "^6.0.0",
     "@tauri-apps/api": "^1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

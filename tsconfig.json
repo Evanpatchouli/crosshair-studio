@@ -20,8 +20,17 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@locale/*": ["locale/*"],
+      "@public/*": ["src-public/*"],
+      "@utils/*": ["src-public/utils/*"],
+      "@hooks/*": ["src-public/hooks/*"],
+      "@components/*": ["src-public/components/*"]
+    }
   },
-  "include": ["src-main", "src-monitor"],
+  "include": ["src-public", "src-main", "src-monitor"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

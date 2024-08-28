@@ -21,6 +21,15 @@ export default defineConfig(async () => ({
     },
   },
   root: ".",
+  resolve: {
+    alias: {
+      "@locale": resolve(__dirname, "locale"),
+      "@public": resolve(__dirname, "src-public"),
+      "@utils": resolve(__dirname, "src-public/utils"),
+      "@hooks": resolve(__dirname, "src-public/hooks"),
+      "@components": resolve(__dirname, "src-public/components"),
+    },
+  },
   build: {
     rollupOptions: {
       input: {

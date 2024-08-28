@@ -1,13 +1,14 @@
 import toast from "react-hot-toast";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
-import useAsyncEffect from "../hooks/useAsyncEffect";
-import { getExtOfFile, getMainWindow, invoke } from "../utils";
+import useAsyncEffect from "@hooks/useAsyncEffect";
+import { getExtOfFile, getMainWindow, invoke } from "@utils/index";
 import useCache from "../cache";
 import { path } from "@tauri-apps/api";
 import React from "react";
 import unknownSvg from "/unknown.svg";
 import "./index.css";
+import useLocalStorage from "@hooks/useLocalStorage";
 
 const blobType: {
   [key: string]: string;
@@ -41,6 +42,9 @@ export default function Crosshair() {
         break;
     }
   }; //data-tauri-drag-region
+
+  const [width] = useLocalStorage<number>("crosshair_width", 200);
+  const [height] = useLocalStorage<number>("crosshair_height", 200);
 
   // const crossfairs = Array.from({ length: 7 }, (_, i) => `./crosshairs/${i + 1}.png`);
   useEffect(() => {
@@ -87,7 +91,7 @@ export default function Crosshair() {
       unlisten_toggle_ignore_cursor_event();
     };
     return unlisten;
-  }, [idx, imglist.length]);
+  }, []);
 
   useAsyncEffect(async () => {
     if (!isQueryingImgs) {
@@ -95,15 +99,35 @@ export default function Crosshair() {
     }
   }, [isQueryingImgs, idx]);
 
+  const [, store_current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
+  const [canvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
+  // 是否启用反色滤镜
+  const [enableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
+
+  useEffect(() => {
+    if (imglist[idx]) {
+      store_current_crosshair_name(imglist[idx]);
+    }
+  }, [idx, imglist]);
+
   return (
-    <div className="container crosshair-wrapper">
+    <div
+      className="container crosshair-wrapper"
+      style={{
+        borderRadius: canvasShape === "circle" ? "50%" : "0",
+      }}
+    >
       <img
         src={imgsrc || unknownSvg}
         onClick={handleClick}
         // data-tauri-drag-region
         className="cross-pinned"
-        alt="cross"
-        width={200}
+        alt="crosshair"
+        width={width}
+        // height={height}
+        style={{
+          filter: enableInvertFilter ? "invert(100%)" : void 0,
+        }}
       />
     </div>
   );
