@@ -2,24 +2,24 @@ import React from "react";
 
 type SV = string | number | object | boolean | null | undefined;
 
-function dispatchStorageEvent<V extends SV = SV>(key: string, newValue: V) {
+export function dispatchStorageEvent<V extends SV = SV>(key: string, newValue: V) {
   window.dispatchEvent(new StorageEvent("storage", {
     key, newValue: newValue as any
   }));
 }
 
-const setLocalStorageItem = <V extends SV = SV>(key: string, value: V) => {
+export const setLocalStorageItem = <V extends SV = SV>(key: string, value: V) => {
   const stringifiedValue = JSON.stringify(value);
   window.localStorage.setItem(key, stringifiedValue);
   dispatchStorageEvent(key, stringifiedValue);
 };
 
-const removeLocalStorageItem = (key: string) => {
+export const removeLocalStorageItem = (key: string) => {
   window.localStorage.removeItem(key);
   dispatchStorageEvent(key, null);
 };
 
-const getLocalStorageItem = (key: string) => {
+export const getLocalStorageItem = (key: string) => {
   return window.localStorage.getItem(key);
 };
 

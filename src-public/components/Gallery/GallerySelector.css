@@ -1,0 +1,27 @@
+.evp-gallery-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  flex-wrap: nowrap;
+  overflow-y: hidden;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding: 2px;
+}
+
+.gallery-selector-item {
+  opacity: 0.6;
+  z-index: 0;
+  transition: all 0.3s ease;
+
+  &.active {
+    background-color: var(--gallery-selector-active-background-color, "rgba(0, 0, 0, 0.5)");
+    outline: 2px solid var(--gallery-selector-active-border-color, #e0e0e0);
+    box-shadow: "0 0 10px rgba(0, 0, 0, 0.5)";
+    border-radius: 4px;
+    filter: grayscale(100%);
+    opacity: 1;
+    z-index: 100;
+  }
+}

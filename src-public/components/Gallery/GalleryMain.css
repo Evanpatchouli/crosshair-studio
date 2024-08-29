@@ -1,0 +1,11 @@
+.evp-gallery-main {
+  /* border: 1px solid #e0e0e0; */
+
+  .evp-gallery-button {
+    display: none;
+  }
+
+  &:hover .evp-gallery-button {
+    display: inherit;
+  }
+}

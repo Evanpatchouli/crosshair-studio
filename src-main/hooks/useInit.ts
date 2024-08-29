@@ -7,6 +7,7 @@ import { version } from "../../package.json";
 import { useHotkeys } from "react-hotkeys-hook";
 import globalHotKeys from "../hotkeys/globalHotKeys";
 import toast from "react-hot-toast";
+import useLocalStorage from "@public/hooks/useLocalStorage";
 
 export default function useInit() {
   const cache = useCache();
@@ -32,6 +33,7 @@ export default function useInit() {
       cache.setIsQueryingImgs(false);
     }
   };
+  const [$v_crosshair_dir, $s_crosshair_dir] = useLocalStorage<string>("crosshair_dir");
   useAsyncEffect(
     async () => {
       await sleep(2000);
@@ -67,6 +69,7 @@ export default function useInit() {
         default_crosshair_dir === stored_crosshair_dir ? default_crosshair_dir : crosshair_dir
       );
       cache.set_crosshair_dictionary(crosshair_dir);
+      $s_crosshair_dir(crosshair_dir);
       await queryImgs(crosshair_dir);
 
       const default_crosshair = await store.get("default_crosshair");

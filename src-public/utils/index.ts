@@ -6,6 +6,21 @@ import {
 import { invoke as tauriInvoke } from "@tauri-apps/api";
 import { WebviewWindow } from "@tauri-apps/api/window";
 
+export async function checkIsDev() {
+  // const isDev = await invoke("is_dev");  // deprecated
+  const isDev = import.meta.env.DEV;
+  return isDev ? true : false;
+}
+
+export const blobType: {
+  [key: string]: string;
+} = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+};
+
 export function getExtOfFile(fileName: string): string {
   return (fileName || "").split(".").pop() || "";
 }
@@ -74,4 +89,20 @@ export function getMainWindow() {
 export function getMonitorWindow() {
   const mainwindow = WebviewWindow.getByLabel("monitor")
   return mainwindow;
+}
+
+export function classes(classNames: (string | number | undefined)[], excludeZero: boolean = false) {
+  return classNames
+    .filter(name => {
+      if (typeof name === 'string') {
+        return name.trim();
+      }
+      if (excludeZero && name === 0) {
+        return false;
+      }
+      return name;
+    })
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ');
 }

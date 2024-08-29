@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import useAsyncEffect from "@hooks/useAsyncEffect";
-import { getExtOfFile, getMainWindow, invoke } from "@utils/index";
+import { blobType, getExtOfFile, getMainWindow, invoke } from "@utils/index";
 import useCache from "../cache";
 import { path } from "@tauri-apps/api";
 import React from "react";
@@ -10,14 +10,7 @@ import unknownSvg from "/unknown.svg";
 import "./index.css";
 import useLocalStorage from "@hooks/useLocalStorage";
 
-const blobType: {
-  [key: string]: string;
-} = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  gif: "image/gif",
-  svg: "image/svg+xml",
-};
+
 
 export default function Crosshair() {
   const { imglist, isQueryingImgs, idx, switchIdx, ...cache } = useCache();
