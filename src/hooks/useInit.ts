@@ -31,7 +31,7 @@ export default function useInit() {
   };
   useAsyncEffect(
     async () => {
-      await sleep(2000);
+      await sleep(1000);
       await store.set("version", version);
       // await store.set("crosshair_dictionary", "${APP_DIR}/crosshairs")
 
@@ -75,17 +75,15 @@ export default function useInit() {
         store.set("ignoreCursorEvents", cache.ignoreCursorEvents)
       ])
 
-      await Promise.all([
-        globalHotKeys.togglePinned.register(cache),
+      globalHotKeys.togglePinned.register(cache),
         globalHotKeys.toggleIgnoreCursorEvents.register(cache),
         globalHotKeys.switchIdx.register(cache),
         globalHotKeys.switchToDefaultCrosshair.register(cache),
         globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
         globalHotKeys.reload.register(),
         globalHotKeys.exit.register(),
-      ]);
 
-      setIsInitiated(true);
+        setIsInitiated(true);
       return () => {
         globalHotKeys.togglePinned.unregister();
         globalHotKeys.toggleIgnoreCursorEvents.unregister();
@@ -96,10 +94,7 @@ export default function useInit() {
         globalHotKeys.exit.unregister();
       };
     },
-    [],
-    {
-      onError: (e: Error) => toast.error(e.message || "Failed to initiate"),
-    }
+    []
   );
 
   useHotkeys("q", cache.switchIdx, [cache.idx]);
