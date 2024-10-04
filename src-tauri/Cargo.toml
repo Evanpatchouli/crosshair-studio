@@ -11,11 +11,12 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "process-relaunch", "process-exit", "global-shortcut-all", "path-all", "fs-all", "system-tray", "window-all", "shell-open"] }
+tauri = { version = "1", features = [ "os-all", "process-relaunch", "process-exit", "global-shortcut-all", "path-all", "fs-all", "system-tray", "window-all", "shell-open"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 chrono = { version = "0.4", features = ["serde"] }
+tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-fs-watch = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

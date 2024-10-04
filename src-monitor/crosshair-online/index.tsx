@@ -18,7 +18,7 @@ export default function CrosshairOnline() {
       <ImageList sx={{ width: 600, height: 400, borderRadius: 3 }} cols={3} rowHeight={150} gap={20}>
         {crosshairs.map((item) => (
           <ImageListItem
-            key={item.url}
+            key={item.title}
             sx={{
               overflow: "hidden",
               borderRadius: 3,

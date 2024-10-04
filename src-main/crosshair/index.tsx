@@ -10,10 +10,8 @@ import unknownSvg from "/unknown.svg";
 import "./index.css";
 import useLocalStorage from "@hooks/useLocalStorage";
 
-
-
 export default function Crosshair() {
-  const { imglist, isQueryingImgs, idx, switchIdx, ...cache } = useCache();
+  const { imglist, isQueryingImgs, cur, switchCrosshair, ...cache } = useCache();
   const pinWindow = async () => {
     cache.toggleAlwaysOnTop({
       onTop() {
@@ -66,7 +64,7 @@ export default function Crosshair() {
 
   useAsyncEffect(async () => {
     const unlinsten_switch_cross = await listen("switch_cross", () => {
-      switchIdx();
+      switchCrosshair();
     });
     const unlisten_switch_to_default_cross = await listen("switch_to_default_cross", () => {
       cache.switchToDefaultCrosshair();
@@ -84,13 +82,16 @@ export default function Crosshair() {
       unlisten_toggle_ignore_cursor_event();
     };
     return unlisten;
-  }, []);
+  }, [cur, imglist.length]);
 
-  useAsyncEffect(async () => {
+  useEffect(() => {
     if (!isQueryingImgs) {
-      await queryImg(idx);
+      const idx = imglist.findIndex((i) => i === cur);
+      queryImg(idx).catch(() => {
+        setImgsrc("");
+      });
     }
-  }, [isQueryingImgs, idx]);
+  }, [isQueryingImgs, cur, imglist]);
 
   const [, store_current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
   const [canvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
@@ -98,10 +99,10 @@ export default function Crosshair() {
   const [enableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
 
   useEffect(() => {
-    if (imglist[idx]) {
-      store_current_crosshair_name(imglist[idx]);
+    if (cur) {
+      store_current_crosshair_name(cur);
     }
-  }, [idx, imglist]);
+  }, [cur]);
 
   return (
     <div

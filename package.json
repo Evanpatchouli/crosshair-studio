@@ -6,6 +6,11 @@
   "author": {
     "name": "evanpatchouli"
   },
+  "info": {
+    "version": "2.0.0-alpha",
+    "commit": "b28f7f74f4dea5ea324e895b7307f53876c6d29c",
+    "datetime": "2024-10-02T14:06:30.594Z"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +18,7 @@
     "preview": "vite preview",
     "tauri:dev": "set TAURI_DEV=1 && tauri dev",
     "tauri:build": "tauri build",
+    "tauri:icon": "tauri icon",
     "before-tauri:build": "node ./dev/before-tauri-build.cjs",
     "collect-release": "node ./dev/collect_to_release.cjs"
   },
@@ -28,15 +34,19 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-hotkeys-hook": "^4.5.0",
+    "tauri-plugin-fs-watch-api": "github:tauri-apps/tauri-plugin-fs-watch#v1",
     "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",
+    "@types/archiver": "^6.0.2",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.5.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "archiver": "^7.0.1",
     "connect-history-api-fallback": "^2.0.0",
     "fs-extra": "^11.2.0",
     "typescript": "^5.2.2",

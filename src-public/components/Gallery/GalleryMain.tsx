@@ -16,6 +16,12 @@ type GalleryMainProps = {
   setCurrent?: React.Dispatch<React.SetStateAction<number>>;
 } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> &
   SimpleStyleProps;
+
+function prehandle<T = any>(value: number | string | undefined, defaultValue?: T) {
+  if (value === void 0) return defaultValue;
+  if (typeof value === "number") return value + "px";
+  return value;
+}
 export default function GalleryMain({
   className,
   style,
@@ -65,8 +71,9 @@ export default function GalleryMain({
     <div
       className={classes(["evp-gallery-main", className])}
       style={{
-        width: w || "100%",
-        height: h || "800px",
+        width: prehandle(w, "100%"),
+        height: prehandle(h, "800px"),
+        minHeight: "100px",
         overflow: "hidden",
         display: "flex",
         justifyContent: "center",

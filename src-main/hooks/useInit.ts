@@ -8,6 +8,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import globalHotKeys from "../hotkeys/globalHotKeys";
 import toast from "react-hot-toast";
 import useLocalStorage from "@public/hooks/useLocalStorage";
+import { watch } from "tauri-plugin-fs-watch-api";
 
 export default function useInit() {
   const cache = useCache();
@@ -36,7 +37,7 @@ export default function useInit() {
   const [$v_crosshair_dir, $s_crosshair_dir] = useLocalStorage<string>("crosshair_dir");
   useAsyncEffect(
     async () => {
-      await sleep(2000);
+      await sleep(1000);
       await store.set("version", version);
       // await store.set("crosshair_dictionary", "${APP_DIR}/crosshairs")
       let crosshair_dir = "";
@@ -70,6 +71,7 @@ export default function useInit() {
       );
       cache.set_crosshair_dictionary(crosshair_dir);
       $s_crosshair_dir(crosshair_dir);
+      const unWatch = await watch(crosshair_dir, () => queryImgs(crosshair_dir))
       await queryImgs(crosshair_dir);
 
       const default_crosshair = await store.get("default_crosshair");
@@ -85,7 +87,7 @@ export default function useInit() {
         await Promise.all([
           globalHotKeys.togglePinned.register(cache),
           globalHotKeys.toggleIgnoreCursorEvents.register(cache),
-          globalHotKeys.switchIdx.register(cache),
+          globalHotKeys.switchCrosshair.register(cache),
           globalHotKeys.switchToDefaultCrosshair.register(cache),
           globalHotKeys.setCurrentCrosshairAsDefault.register(cache),
           globalHotKeys.monitor.register(),
@@ -104,21 +106,19 @@ export default function useInit() {
       return () => {
         globalHotKeys.togglePinned.unregister();
         globalHotKeys.toggleIgnoreCursorEvents.unregister();
-        globalHotKeys.switchIdx.unregister();
+        globalHotKeys.switchCrosshair.unregister();
         globalHotKeys.switchToDefaultCrosshair.unregister();
         globalHotKeys.setCurrentCrosshairAsDefault.unregister();
         globalHotKeys.monitor.unregister();
         globalHotKeys.reload.unregister();
         globalHotKeys.exit.unregister();
+        unWatch();
       };
     },
-    [],
-    {
-      onError: (e: Error) => toast.error(e.message || "Failed to initiate"),
-    }
-  ), [];
+    []
+  );
 
-  useHotkeys("q", cache.switchIdx, [cache.idx]);
+  useHotkeys("q", cache.switchCrosshair, [cache.cur]);
 
   return isInitiated;
 }

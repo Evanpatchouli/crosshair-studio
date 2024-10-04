@@ -34,6 +34,7 @@ fn main() {
         .system_tray(system_tray)
         .on_system_tray_event(tray_handler)
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_fs_watch::init())
         .run(tauri::generate_context!())
         .expect("error while running Crosshair Studio application");
 }

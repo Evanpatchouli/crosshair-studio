@@ -71,7 +71,7 @@ export default function CrosshaiConfigure() {
       <h2>准星参数配置</h2>
       <div>当前准星: {current_crosshair_name}</div>
       <GalleryMain w={600} h={200} items={crosshairs} current={cur} setCurrent={setCur} />
-      <GallerySelector w={600} h={100} items={crosshairs} current={cur} setCurrent={setCur} />
+      <GallerySelector column={4} w={600} h={300} itemH={140} items={crosshairs} current={cur} setCurrent={setCur} />
       <Stack flexDirection="row" gap={12} mt="30px">
         <Box sx={{ width: 200 }}>
           <Stack>

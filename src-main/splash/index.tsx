@@ -2,7 +2,7 @@
 import { useLayoutEffect, useState } from "react";
 import { app } from "@tauri-apps/api";
 import Loading from "@components/Loading";
-import tauriLogo from "/tauri.svg";
+import Logo from "/logo.svg";
 import "./index.css";
 
 export default function Splash() {
@@ -14,7 +14,7 @@ export default function Splash() {
   }, []);
   return (
     <div className="splash">
-      <img className="app-logo" src={tauriLogo} alt="app-logo" />
+      <img className="app-logo" src={Logo} alt="app-logo" />
       <h1 className="app-title">{appname}</h1>
       <div className="app-splash-description">
         应用启动中请稍等
