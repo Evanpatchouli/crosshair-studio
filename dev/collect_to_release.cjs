@@ -1,11 +1,18 @@
 const fs = require("fs");
 const path = require("path");
 const fse = require("fs-extra");
+const archiver = require('archiver');
+const pkg = require('../package.json');
 
 const sourceDir = "./src-tauri/target/release";
 const targetDir = "./release/portable";
 const bundleSourceDir = path.join(sourceDir, "bundle");
 const releaseDir = "./release";
+
+// 清空 releaseDir 目录
+if (fs.existsSync(releaseDir)) {
+  fse.emptyDirSync(releaseDir);
+}
 
 // 要收集的文件和文件夹列表
 const itemsToCollect = ["Crosshair Studio.exe", "readme.md", "readme_cn.md", "LICENSE", "crosshairs", "icons"];
@@ -55,3 +62,73 @@ const nsisDir = path.join(bundleSourceDir, "nsis");
 
 copyFilesFromDir(msiDir, releaseDir, [".msi"]);
 copyFilesFromDir(nsisDir, releaseDir, [".exe"]);
+
+async function zipDir(sourceDir, outPath) {
+  const output = fs.createWriteStream(outPath);
+  const arch = archiver('zip', {
+    zlib: { level: 9 } // 设置压缩级别
+  });
+
+  output.on('close', () => {
+    console.log(`Compression finished, totally ${arch.pointer()} bytes.`);
+  });
+
+  arch.on('error', (err) => {
+    throw err;
+  });
+
+  arch.pipe(output);
+
+  arch.directory(sourceDir, false);
+
+  await arch.finalize();
+}
+
+async function zipFile(sourcePath, outPath) {
+  const output = fs.createWriteStream(outPath);
+  const arch = archiver('zip', {
+    zlib: { level: 9 } // 设置压缩级别
+  });
+
+  output.on('close', () => {
+    console.log(`Compression finished, totally ${arch.pointer()} bytes.`);
+  });
+
+  arch.on('error', (err) => {
+    throw err;
+  });
+
+  arch.pipe(output);
+
+  arch.append(fs.createReadStream(sourcePath), { name: path.basename(sourcePath) });
+
+  await arch.finalize();
+}
+
+const portable = path.resolve(targetDir);
+const msi = path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_en-US.msi`);
+const nsis = path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64-setup.exe`);
+
+zipDir(portable, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_portable.zip`))
+  .then(() => {
+    // 删除 portable 目录
+    fse.removeSync(portable);
+  }).catch(err => {
+    console.error(err);
+  });
+
+zipFile(msi, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_msi.zip`))
+  .then(() => {
+    // 删除 msi 文件
+    fse.removeSync(msi);
+  }).catch(err => {
+    console.error(err);
+  });
+
+zipFile(nsis, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_nsis.zip`))
+  .then(() => {
+    // 删除 nsis 文件
+    fse.removeSync(nsis);
+  }).catch(err => {
+    console.error(err);
+  });

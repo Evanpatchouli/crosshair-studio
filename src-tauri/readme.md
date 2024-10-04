@@ -45,10 +45,10 @@ After the program is started, the crosshair is placed on the top layer by defaul
 ## Plan
 
 - [x] Full hotkey support
-- [ ] Enable console
-- [ ] Multi-language support
-- [ ] External configuration file
-- [ ] Cross-platform support
+- [ ] Enable console (V2)
+- [ ] Multi-language support (V2)
+- [ ] External configuration file (V2)
+- [ ] Cross-platform support (V2)
 
 ## Contribution
 

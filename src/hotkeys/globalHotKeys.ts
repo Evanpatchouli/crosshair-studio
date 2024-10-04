@@ -4,30 +4,30 @@ import { isRegistered, register, unregister } from "../utils";
 import toast from "react-hot-toast";
 
 const globalHotKeys = {
-  switchIdx: {
+  switchCrosshair: {
     isRegistered: false,
     keys: ["Ctrl", "Alt", "Q"] as const,
     handler: (cache: Cache) => {
-      cache.switchIdx();
+      cache.switchCrosshair();
     },
     async register(cache: Cache) {
       try {
-        globalHotKeys.switchIdx.isRegistered = await isRegistered(globalHotKeys.switchIdx.keys);
-        if (!globalHotKeys.switchIdx.isRegistered) {
-          await register(globalHotKeys.switchIdx.keys, globalHotKeys.switchIdx.handler.bind(null, cache));
-          globalHotKeys.switchIdx.isRegistered = true;
+        globalHotKeys.switchCrosshair.isRegistered = await isRegistered(globalHotKeys.switchCrosshair.keys);
+        if (!globalHotKeys.switchCrosshair.isRegistered) {
+          await register(globalHotKeys.switchCrosshair.keys, globalHotKeys.switchCrosshair.handler.bind(null, cache));
+          globalHotKeys.switchCrosshair.isRegistered = true;
         }
       } catch (error) {
-        console.error("Failed to register hotkey of switchIdx:", error);
+        console.error("Failed to register hotkey of switchCrosshair:", error);
       }
     },
     async unregister() {
-      if (globalHotKeys.switchIdx.isRegistered) {
+      if (globalHotKeys.switchCrosshair.isRegistered) {
         try {
-          await unregister(globalHotKeys.switchIdx.keys);
-          globalHotKeys.switchIdx.isRegistered = false;
+          await unregister(globalHotKeys.switchCrosshair.keys);
+          globalHotKeys.switchCrosshair.isRegistered = false;
         } catch (error) {
-          console.error("Failed to unregister hotkey of switchIdx:", error);
+          console.error("Failed to unregister hotkey of switchCrosshair:", error);
         }
       }
     },

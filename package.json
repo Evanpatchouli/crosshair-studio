@@ -2,7 +2,7 @@
   "name": "crosshair-studio",
   "appname": "Crosshair Studio",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "evanpatchouli"
   },
@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "tauri:dev": "set TAURI_DEV=1 && tauri dev",
     "tauri:build": "tauri build",
+    "tauri:icon": "tauri icon",
     "collect-release": "node ./dev/collect_to_release.cjs"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-hotkeys-hook": "^4.5.0",
+    "tauri-plugin-fs-watch-api": "github:tauri-apps/tauri-plugin-fs-watch#v1",
     "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1",
     "zustand": "^4.5.5"
   },
@@ -30,6 +32,7 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "archiver": "^7.0.1",
     "fs-extra": "^11.2.0",
     "typescript": "^5.2.2",
     "vite": "^5.3.1"

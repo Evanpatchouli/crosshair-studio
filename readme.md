@@ -2,15 +2,23 @@
 
 **Crosshair Studio** is a visual interface for the Crosshair symbolic execution engine powered by **Tauri**. It is designed to make it easier to **customize** Crosshair to replcae the default crosshairs in games.
 
+## Latest
+
+- **Version**: 1.1.0
+  - fix: cannot end initializing when hotkey registered by other applications
+  - feature: hot watch crosshair directory
+  - change: brandnew preset unknown crosshair
+  - change: brandnew logo
+
 ## Installation
 
 - [Windows msi Installer]: An executable msi installer for 64-bit Windows 10 and later platforms.
 - [Windows exe Installer]: An executable exe installer for 64-bit Windows 10 and later platforms.
 - [Windows Portable]: A compressed executable file for 64-bit Windows 10 and later platforms, no installation required.
 
-[windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_msi.zip
-[windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
-[windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
+[windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_msi.zip
+[windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_setup.zip
+[windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_portable.zip
 
 ## Usage
 
@@ -24,7 +32,7 @@ After the program is started, the crosshair is placed on the top layer by defaul
   - 取消置顶: Unpin the crosshair from the top layer of the desktop
   - 隐藏应用（显示应用）: Show or hide the app and crosshair
   - 鼠标穿透（开/关）: Whether the crosshair image will not block the click events of other windows
-  - 换准星: Switch crosshair in order in the crosshair directory
+  - 切换准星: Switch crosshair in order in the crosshair directory
   - 切换默认准星: Switch to the set default crosshair (default to the first crosshair when not set)
   - 设为默认准星: Set the crosshair of the current app as the default crosshair
   - 控制台: Open the console for more detailed app configuration
@@ -49,10 +57,10 @@ The Crosshair Studio software itself and its resource files are located in the i
 ## Plan
 
 - [x] Full hotkey support
-- [ ] Enable console
-- [ ] Multi-language support
-- [ ] External configuration file
-- [ ] Cross-platform support
+- [ ] Enable console (V2)
+- [ ] Multi-language support (V2)
+- [ ] External configuration file (V2)
+- [ ] Cross-platform support (V2)
 
 ## Contribution
 

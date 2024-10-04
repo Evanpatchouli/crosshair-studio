@@ -17,9 +17,9 @@ export type Cache = {
   setImglist: (value: string[]) => void;
   isQueryingImgs: boolean;
   setIsQueryingImgs: (value: boolean) => void;
-  idx: number;
-  setIdx: (value: number) => void;
-  switchIdx: () => void;
+  cur: string;
+  setCur: (value: string) => void;
+  switchCrosshair: () => void;
   defaultCrosshair?: string;
   setDefaultCrosshair: (value?: string, silence?: boolean) => void;
   setCurrentCrosshairAsDefault: () => void;
@@ -54,13 +54,18 @@ const useCache = create<Cache>((set, getState) => ({
   setImglist: (value: string[]) => set(() => ({ imglist: value })),
   isQueryingImgs: true,
   setIsQueryingImgs: (value: boolean) => set(() => ({ isQueryingImgs: value })),
-  idx: 0,
-  setIdx: (value: number) => set(() => ({ idx: value })),
-  switchIdx: () =>
+  cur: "",
+  setCur: (value: string) => set(() => ({ cur: value })),
+  switchCrosshair: () => {
     set((state) => {
-      state.idx = (state.idx + 1) % state.imglist.length;
-      return { idx: state.idx };
-    }),
+      const idx = state.imglist.findIndex((i) => i === state.cur);
+      if (idx === -1) {
+        return state;
+      }
+      const next_idx = (idx + 1) % state.imglist.length;
+      return { cur: state.imglist[next_idx] };
+    });
+  },
   defaultCrosshair: "",
   setDefaultCrosshair: (value?: string, silence: boolean = false) => {
     set(() => ({ defaultCrosshair: value }));
@@ -91,7 +96,7 @@ const useCache = create<Cache>((set, getState) => ({
       });
       return;
     }
-    const default_crosshair = state.imglist[state.idx];
+    const default_crosshair = state.cur;
     store.set("default_crosshair", default_crosshair);
     state.setDefaultCrosshair(default_crosshair);
   },
@@ -102,12 +107,12 @@ const useCache = create<Cache>((set, getState) => ({
       toast.error(`准星 ${getNameOfFilePath(filepath || "")} 不存在`);
       return;
     }
-    set(() => ({ idx: idx }));
+    set(() => ({ cur: filepath }));
   },
   switchToDefaultCrosshair: () => {
     const state = getState();
     if (!state.defaultCrosshair) {
-      set(() => ({ idx: 0 })); // 默认准星不存在时，切换到第一个准星
+      set(() => ({ cur: state.imglist[0] })); // 默认准星不存在时，切换到第一个准星
       return;
     }
     const idx = state.imglist.findIndex((i) => i === state.defaultCrosshair);
@@ -116,7 +121,7 @@ const useCache = create<Cache>((set, getState) => ({
       toast.error(`默认准星 ${getNameOfFilePath(state.defaultCrosshair)} 不存在`);
       return;
     }
-    set(() => ({ idx: idx }));
+    set(() => ({ cur: state.defaultCrosshair }));
   },
 }));
 

@@ -14,6 +14,7 @@
   > .app-logo {
     animation: spin infinite 2s linear;
     height: 40vmin;
+    border: 1px solid white;
     pointer-events: none;
     filter: drop-shadow(0 0 4em #61dafb);
   }

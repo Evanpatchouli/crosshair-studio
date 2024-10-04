@@ -19,7 +19,7 @@ const blobType: {
 };
 
 export default function Crosshair() {
-  const { imglist, isQueryingImgs, idx, switchIdx, ...cache } = useCache();
+  const { imglist, isQueryingImgs, cur, switchCrosshair, ...cache } = useCache();
   const pinWindow = async () => {
     cache.toggleAlwaysOnTop({
       onTop() {
@@ -69,7 +69,7 @@ export default function Crosshair() {
 
   useAsyncEffect(async () => {
     const unlinsten_switch_cross = await listen("switch_cross", () => {
-      switchIdx();
+      switchCrosshair();
     });
     const unlisten_switch_to_default_cross = await listen("switch_to_default_cross", () => {
       cache.switchToDefaultCrosshair();
@@ -87,13 +87,16 @@ export default function Crosshair() {
       unlisten_toggle_ignore_cursor_event();
     };
     return unlisten;
-  }, [idx, imglist.length]);
+  }, [cur, imglist.length]);
 
-  useAsyncEffect(async () => {
+  useEffect(() => {
     if (!isQueryingImgs) {
-      await queryImg(idx);
+      const idx = imglist.findIndex((i) => i === cur);
+      queryImg(idx).catch(() => {
+        setImgsrc("");
+      });
     }
-  }, [isQueryingImgs, idx]);
+  }, [isQueryingImgs, cur, imglist]);
 
   return (
     <div className="container crosshair-wrapper">

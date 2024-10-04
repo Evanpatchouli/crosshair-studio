@@ -2,16 +2,23 @@
 
 **Crosshair Studio** 是用 **Tauri** 开发的可视化准星引擎。它旨在更轻松地**自定义**十字准线以取代游戏中的默认十字准线。
 
+## 最新
+
+- **版本**: 1.1.0
+  - 修复: 当其他应用程序注册快捷键时无法结束初始化
+  - 新功能: 热监听准星目录
+  - 变更: 全新预设未知准星
+  - 变更: 全新 Logo
+
 ## 安装
 
 - [windows msi 安装包]: 适用于 Windows 10 及更高版本平台的 64 位 msi 安装程序压缩包。
 - [windows exe 安装包]: 适用于 Windows 10 及更高版本平台的 64 位 exe 安装程序压缩包。
 - [windows 免安装]: 适用于 Windows 10 及更高版本平台的 64 位可执行文件压缩包，无需安装。
 
-[windows msi安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_msi.zip
-[windows exe安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
-[windows 绿色免安装]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
-
+[windows msi安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_msi.zip
+[windows exe安装包]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_setup.zip
+[windows 绿色免安装]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.1.0/Crosshair.Studio_1.1.0_x64_windows_10_portable.zip
 
 ## 使用
 
@@ -43,13 +50,18 @@
 - 应用快捷键：（应用级快捷键）
   - `Q`：切换准星
 
+## 卸载
+
+Crosshair Studio 软件本体及其资源文件均位于安装目录下，仅有大小约 1kb 的数据文件存储在用户目录下的 `AppData\Roaming\com.crosshair-studio.app` 文件夹中。
+如果需要完全卸载 Crosshair Studio，只需执行卸载（或删除软件安装目录）并删除该数据文件夹即可。
+
 ## 计划
 
 - [x] 快捷键全支持
-- [ ] 控制台开放
-- [ ] 多语言支持
-- [ ] 外置配置文件
-- [ ] 跨平台支持
+- [ ] 控制台开放（V2）
+- [ ] 多语言支持（V2）
+- [ ] 外置配置文件（V2）
+- [ ] 跨平台支持（V2）
 
 ## 贡献
 
