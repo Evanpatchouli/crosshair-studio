@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Crosshair Studio",
-    "version": "2.0.0-alpha"
+    "version": "2.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -36,6 +36,27 @@
         "exit": true,
         "relaunch": true,
         "relaunchDangerousAllowSymlinkMacos": false
+      },
+      "dialog": {
+        "all": true
+      },
+      "clipboard": {
+        "all": false,
+        "writeText": true
+      },
+      "http": {
+        "all": true,
+        "scope": [
+          "http://**",
+          "https://**"
+        ]
+      },
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": [
+          "*/**"
+        ]
       }
     },
     "windows": [
@@ -62,6 +83,7 @@
         "center": true,
         "width": 1200,
         "height": 800,
+        "minWidth": 400,
         "url": "monitor.html"
       }
     ],
@@ -70,7 +92,7 @@
       "iconAsTemplate": true
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self' 'unsafe-inline'; img-src * 'unsafe-inline' asset: https://asset.localhost"
     },
     "bundle": {
       "active": true,
@@ -90,6 +112,7 @@
       "resources": [
         "icons",
         "crosshairs/**/*",
+        "locales",
         "LICENSE",
         "readme.md",
         "readme_cn.md"

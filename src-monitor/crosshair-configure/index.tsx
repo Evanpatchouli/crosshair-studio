@@ -1,18 +1,39 @@
-import { Box, Radio, Slider, Stack, Switch } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Radio,
+  Slider,
+  Stack,
+  Switch,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 import useLocalStorage from "@hooks/useLocalStorage";
 import Label from "@public/components/Lable";
-import GalleryMain from "@public/components/Gallery/GalleryMain";
-import GallerySelector from "@public/components/Gallery/GallerySelector";
-import { useEffect, useState } from "react";
-import { blobType, getExtOfFile, getNameOfFilePath, invoke } from "@public/utils";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
+import ImgContainer from "./img-container";
+import { Cached, Refresh, SaveAs } from "@mui/icons-material";
+import { useState } from "react";
+import Help from "@public/components/icons/Help";
+import { syncShareSchemes } from "@public/utils";
+import toast from "react-hot-toast";
+import Model from "@public/model";
+import { schemes } from "@public/store";
+import useLocale from "@public/hooks/uselocale";
 
 export default function CrosshaiConfigure() {
+  const $ = useLocale();
+  const [crosshair_dir] = useLocalStorage("crosshair_dir");
   const [current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
   const [width, setWidth] = useLocalStorage<number>("crosshair_width", 200);
   const [height, setHeight] = useLocalStorage<number>("crosshair_height", 200);
   const [lockRatio, setLockRatio] = useLocalStorage<boolean>("crosshair_lock_ratio", true);
 
-  const [canvasSize, setCanvasSize] = useLocalStorage<number>("canvas_size", 200);
+  const [canvasSize, setCanvasSize] = useLocalStorage<number>("canvas_size", 400);
   const [canvasShape, setCanvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
   const handleCanvasShapeRadioClick = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCanvasShape(e.target.value as any);
@@ -20,62 +41,68 @@ export default function CrosshaiConfigure() {
   // 是否启用反色滤镜
   const [enableInvertFilter, setEnableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
 
-  const [cur, setCur] = useState(0);
-  const [crosshairs_names, setCrosshairs_names] = useState<string[]>([]);
-  const [$v_crosshair_dir] = useLocalStorage<string>("crosshair_dir");
+  const [lastScheme, setLastScheme] = useState({
+    width,
+    height,
+    lockRatio,
+    canvasSize,
+    canvasShape,
+    enableInvertFilter,
+  });
 
-  const [imgMap, setImgMap] = useState<Record<string, string>>({});
+  const handleReset = () => {
+    setWidth(lastScheme.width);
+    setHeight(lastScheme.height);
+    setLockRatio(lastScheme.lockRatio);
+    setCanvasSize(lastScheme.canvasSize);
+    setCanvasShape(lastScheme.canvasShape);
+    setEnableInvertFilter(lastScheme.enableInvertFilter);
+  };
 
-  useEffect(() => {
-    if ($v_crosshair_dir) {
-      console.log("get_images_from_directory", { directory: $v_crosshair_dir });
-      invoke("get_images_from_directory", { directory: $v_crosshair_dir }).then((paths) => {
-        const names = paths.map((it) => getNameOfFilePath(it));
-        setCrosshairs_names(names || []);
-        paths.forEach((path) =>
-          invoke("read_image", { path: path }).then((data) => {
-            if (data) {
-              const name = getNameOfFilePath(path);
-              // 设置为图片 blobType[getExtOfFile(imglist[idx || 0])]
-              const blob = new Blob([new Uint8Array(data)], {
-                type: blobType[getExtOfFile(name)],
-              });
-              const url = URL.createObjectURL(blob);
-              setImgMap((state) => ({
-                ...state,
-                [name]: url,
-              }));
-            }
-          })
-        );
-      });
-    }
-  }, [$v_crosshair_dir]);
+  const handleSave = () => {
+    setLastScheme({
+      width,
+      height,
+      lockRatio,
+      canvasSize,
+      canvasShape,
+      enableInvertFilter,
+    });
+  };
 
-  // const crosshairs = (cache.imglist || []).map((item) => ({
-  //   // id?: number | string;
-  //   title: item,
-  //   desc: item,
-  //   url: item,
-  // }));
-  const crosshairs = crosshairs_names.map((name) => ({
-    title: name,
-    desc: name,
-    url: imgMap[name] || "666",
-  }));
-  useEffect(() => {
-    console.log(imgMap);
-  }, [imgMap]);
+  const [dialog_open, set_dialog_open] = useState(false);
+  const close_dialog = () => {
+    set_dialog_open(false);
+  };
+
+  const handleSaveAs = () => {
+    set_dialog_open(true);
+  };
+
+  const [schemeName, setSchemeName] = useState("");
+  const [schemeDesc, setSchemeDesc] = useState("");
+
   return (
     <>
-      <h2>准星参数配置</h2>
-      <div>当前准星: {current_crosshair_name}</div>
-      <GalleryMain w={600} h={200} items={crosshairs} current={cur} setCurrent={setCur} />
-      <GallerySelector column={4} w={600} h={300} itemH={140} items={crosshairs} current={cur} setCurrent={setCur} />
+      <h2>{$("Crosshair Parameters Configuration")}</h2>
+      <figure>
+        <ImgContainer>
+          <img
+            src={convertFileSrc(`${crosshair_dir}\\${current_crosshair_name}`)}
+            alt="crosshair"
+            style={{
+              width: 200,
+              height: 200,
+              objectFit: "contain",
+            }}
+          />
+        </ImgContainer>
+        <figcaption style={{ textAlign: "center" }}>{current_crosshair_name}</figcaption>
+      </figure>
       <Stack flexDirection="row" gap={12} mt="30px">
         <Box sx={{ width: 200 }}>
           <Stack>
-            <Label>图片宽度</Label>
+            <Label>{$("Image Width")}</Label>
             <Slider
               min={0}
               max={400}
@@ -91,7 +118,7 @@ export default function CrosshaiConfigure() {
             />
           </Stack>
           <Stack>
-            <Label>图片高度</Label>
+            <Label>{$("Image Height")}</Label>
             <Slider
               min={0}
               max={400}
@@ -107,19 +134,24 @@ export default function CrosshaiConfigure() {
             />
           </Stack>
           <Stack flexDirection="row" alignItems="center">
-            <Label for="lock-ratio">锁定纵横比</Label>
+            <Label for="lock-ratio">{$("Lock Ratio")}</Label>
             <Switch
               id="lock-ratio"
               checked={lockRatio}
               onChange={(e) => {
                 setLockRatio(e.target.checked);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setLockRatio(!lockRatio);
+                }
+              }}
             />
           </Stack>
         </Box>
         <Box sx={{ width: 200 }}>
           <Stack>
-            <Label>画布大小</Label>
+            <Label>{$("Canvas Size")}</Label>
             <Slider
               min={0}
               max={400}
@@ -133,37 +165,145 @@ export default function CrosshaiConfigure() {
           </Stack>
           <Stack flexDirection="row" alignItems="center">
             <Label for="canvas-shape" style={{ marginRight: "1rem" }}>
-              画布形状 :
+              {$("Canvas Shape")} :
             </Label>
-            <Label>方</Label>
+            <Label>{$("Rect")}</Label>
             <Radio
               checked={canvasShape === "rect"}
               onChange={handleCanvasShapeRadioClick}
               value="rect"
               name="canvas-shape"
-              inputProps={{ "aria-label": "方形" }}
+              inputProps={{ "aria-label": $("Rect") }}
             />
-            <Label>圆</Label>
+            <Label>{$("Circle")}</Label>
             <Radio
               checked={canvasShape === "circle"}
               onChange={handleCanvasShapeRadioClick}
               value="circle"
               name="canvas-shape"
-              inputProps={{ "aria-label": "圆形" }}
+              inputProps={{ "aria-label": $("Circle") }}
             />
           </Stack>
           <Stack flexDirection="row" alignItems="center">
-            <Label for="enable-invert-filter">启用反色滤镜</Label>
+            <Label for="enable-invert-filter">{$("Enable Invert Filter")}</Label>
             <Switch
               id="enable-invert-filter"
               checked={enableInvertFilter}
               onChange={(e) => {
                 setEnableInvertFilter(e.target.checked);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setEnableInvertFilter(!enableInvertFilter);
+                }
+              }}
             />
           </Stack>
         </Box>
       </Stack>
+
+      <Stack flexDirection="row" gap={2} justifyContent="right" mt="2rem">
+        <Button
+          startIcon={<Refresh />}
+          variant="contained"
+          sx={{ borderRadius: "1rem" }}
+          size="small"
+          onClick={handleReset}
+        >
+          {$("Restore")}
+        </Button>
+        <Button
+          startIcon={<Cached />}
+          variant="contained"
+          sx={{ borderRadius: "1rem" }}
+          size="small"
+          onClick={handleSave}
+        >
+          {$("Stage")}
+        </Button>
+        <Button
+          startIcon={<SaveAs />}
+          variant="contained"
+          sx={{ borderRadius: "1rem" }}
+          size="small"
+          onClick={handleSaveAs}
+        >
+          {$("Save As")}
+          <Tooltip title={$("Save as crosshair configuration scheme")}>
+            <Help sx={{ fontSize: "1rem", ml: "4px" }} />
+          </Tooltip>
+        </Button>
+      </Stack>
+
+      <Dialog
+        open={dialog_open}
+        onClose={close_dialog}
+        PaperProps={{
+          component: "form",
+          onSubmit: async (e: any) => {
+            e.preventDefault();
+            const scheme = new Model.CrosshairScheme({
+              name: schemeName,
+              crosshair: current_crosshair_name,
+              desc: schemeDesc,
+              width,
+              height,
+              lockRatio,
+              canvasSize,
+              canvasShape,
+              enableInvertFilter,
+            });
+            await schemes.add(scheme);
+            close_dialog();
+            toast.success($("Save successfully"));
+            setSchemeName("");
+            setSchemeDesc("");
+            syncShareSchemes();
+          },
+          style: {
+            width: "400px",
+            // @ts-ignore
+            "--Paper-overlay": "none",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle>{$("Please name the crosshair scheme")}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label={$("Scheme Name")}
+            value={schemeName}
+            onChange={(e) => {
+              setSchemeName(e.target.value);
+            }}
+            size="small"
+            fullWidth
+            sx={{ mt: "0.5rem" }}
+          />
+          <TextField
+            label={$("Description")}
+            value={schemeDesc}
+            onChange={(e) => {
+              setSchemeDesc(e.target.value);
+            }}
+            size="small"
+            fullWidth
+            sx={{ mt: "1rem" }}
+            type="text"
+            multiline
+            minRows={2}
+            maxRows={4}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button size="small" onClick={close_dialog}>
+            {$("Cancel")}
+          </Button>
+          <Button size="small" type="submit" variant="contained">
+            {$("Confirm")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

@@ -1,17 +1,18 @@
 import toast from "react-hot-toast";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useAsyncEffect from "@hooks/useAsyncEffect";
-import { blobType, getExtOfFile, getMainWindow, invoke } from "@utils/index";
+import { blobType, getExtOfFile, getMainWindow, getNameOfFilePath, invoke, webFiles } from "@utils/index";
 import useCache from "../cache";
 import { path } from "@tauri-apps/api";
 import React from "react";
 import unknownSvg from "/unknown.svg";
-import "./index.css";
 import useLocalStorage from "@hooks/useLocalStorage";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
+import "./index.css";
 
 export default function Crosshair() {
-  const { imglist, isQueryingImgs, cur, switchCrosshair, ...cache } = useCache();
+  const { imglist, isQueryingImgs, cur, setCur, switchCrosshair, ...cache } = useCache();
   const pinWindow = async () => {
     cache.toggleAlwaysOnTop({
       onTop() {
@@ -37,7 +38,6 @@ export default function Crosshair() {
   const [width] = useLocalStorage<number>("crosshair_width", 200);
   const [height] = useLocalStorage<number>("crosshair_height", 200);
 
-  // const crossfairs = Array.from({ length: 7 }, (_, i) => `./crosshairs/${i + 1}.png`);
   useEffect(() => {
     getMainWindow()?.setAlwaysOnTop(cache.isAlwaysOnTop);
   }, [cache.isAlwaysOnTop]);
@@ -49,16 +49,34 @@ export default function Crosshair() {
       return Promise.reject("no img");
     }
     const filePath = await path.resolve(cache.crosshair_dictionary, imglist[idx || 0]);
-    const data = await invoke("read_image", {
-      path: filePath,
-    }); // 字节数组
-    if (data) {
-      // 设置为图片 blobType[getExtOfFile(imglist[idx || 0])]
-      const blob = new Blob([new Uint8Array(data)], {
-        type: blobType[getExtOfFile(imglist[idx || 0])],
+    let url: string;
+    const name = getNameOfFilePath(filePath);
+    const ext = getExtOfFile(name);
+    if (Object.keys(blobType).includes(ext)) {
+      url = convertFileSrc(filePath);
+      return setImgsrc(url);
+    }
+    if (webFiles.includes(ext)) {
+      invoke("read_image", { path: filePath }).then((data) => {
+        if (data) {
+          let content: string = new TextDecoder().decode(new Uint8Array(data));
+          switch (ext) {
+            case "txt":
+              url = content;
+              break;
+            case "url":
+              url =
+                content
+                  .split("\n")
+                  .find((line) => line.startsWith("URL="))
+                  ?.replace("URL=", "") || "";
+              break;
+          }
+          return setImgsrc(url);
+        } else {
+          setImgsrc(unknownSvg);
+        }
       });
-      const url = URL.createObjectURL(blob);
-      setImgsrc(url);
     }
   };
 
@@ -93,22 +111,40 @@ export default function Crosshair() {
     }
   }, [isQueryingImgs, cur, imglist]);
 
-  const [, store_current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
+  const [current_crosshair_name, store_current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
+  const [canvasSize] = useLocalStorage<number>("canvas_size", 200);
   const [canvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
   // 是否启用反色滤镜
   const [enableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
 
+  const isUpdatingFromCur = useRef(false);
+  const isUpdatingFromCurrentCrosshairName = useRef(false);
+
   useEffect(() => {
-    if (cur) {
+    if (cur && !isUpdatingFromCurrentCrosshairName.current) {
+      isUpdatingFromCur.current = true;
       store_current_crosshair_name(cur);
+    } else {
+      isUpdatingFromCurrentCrosshairName.current = false;
     }
   }, [cur]);
+
+  useEffect(() => {
+    if (current_crosshair_name && !isUpdatingFromCur.current) {
+      isUpdatingFromCurrentCrosshairName.current = true;
+      setCur(current_crosshair_name);
+    } else {
+      isUpdatingFromCur.current = false;
+    }
+  }, [current_crosshair_name]);
 
   return (
     <div
       className="container crosshair-wrapper"
       style={{
         borderRadius: canvasShape === "circle" ? "50%" : "0",
+        width: `${canvasSize}px`,
+        height: `${canvasSize}px`,
       }}
     >
       <img
@@ -118,7 +154,7 @@ export default function Crosshair() {
         className="cross-pinned"
         alt="crosshair"
         width={width}
-        // height={height}
+        height={height}
         style={{
           filter: enableInvertFilter ? "invert(100%)" : void 0,
         }}

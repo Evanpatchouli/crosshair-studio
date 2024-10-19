@@ -39,3 +39,15 @@ body {
 *::-webkit-scrollbar-corner {
   background-color: transparent;
 }
+
+.crosshair-container.img-grey-bg {
+  background-color: var(--monitor-crosshair-bgColor);
+}
+
+.crosshair-container.img-grid-bg {
+  background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%),
+    linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%);
+  background-position: 0 0, 25px 25px;
+  background-size: 50px 50px;
+  background-color: #fefefe;
+}

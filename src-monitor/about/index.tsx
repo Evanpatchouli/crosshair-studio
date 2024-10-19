@@ -4,8 +4,10 @@ import { os as OS } from "@tauri-apps/api";
 import { info, dependencies, devDependencies } from "../../package.json";
 import useAsyncEffect from "@public/hooks/useAsyncEffect";
 import { useState } from "react";
+import useLocale from "@public/hooks/uselocale";
 
 export default function About() {
+  const $ = useLocale();
   const [os, setOs] = useState("");
 
   useAsyncEffect(async () => {
@@ -21,15 +23,15 @@ export default function About() {
         </Box>
         <Stack pl="0.5rem">
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem">
-            <span>Version: </span>
+            <span>{$("Version")}: </span>
             <span>{info.version}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>
-            <span>Commit: </span>
+            <span>{$("Commit")}: </span>
             <span>{info.commit}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>
-            <span>Datetime: </span>
+            <span>{$("Datetime")}: </span>
             <span>{new Date(info.datetime).toLocaleString()}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>

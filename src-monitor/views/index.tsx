@@ -1,58 +1,85 @@
 import { create } from "zustand";
 import CrosshaiConfigure from "../crosshair-configure/index";
+import CrosshairPalette from "../crosshair-palette/index";
 import CrosshairOnline from "../crosshair-online/index";
+import CrosshairLocal from "../crosshair-local/index";
+import Document from "../document/index";
+import AppLicense from "../license/index";
+import Privacy from "../privacy/index";
 import SettingsPanel from "../settings-panel/index";
-import CrosshairDownloaded from "../crosshair-downloaded/index";
 import About from "../about/index";
-import { Build, Info, TravelExplore, Settings, CloudDownload, MenuBook, PrivacyTip } from "@mui/icons-material";
+import {
+  Build,
+  Info,
+  TravelExplore,
+  Settings,
+  CloudDownload,
+  MenuBook,
+  PrivacyTip,
+  Palette,
+  ViewList,
+} from "@mui/icons-material";
 import License from "@public/components/icons/License";
+import CrosshairScheme from "../crosshair-scheme/index";
 
 export const ViewMap = {
   "crosshair-configure": {
     component: CrosshaiConfigure,
-    name: "准星参数配置",
+    name: "Crosshair Parameters Configuration",
     icon: <Build />,
+    tooltip: "",
+  },
+  "crosshair-scheme": {
+    component: CrosshairScheme,
+    name: "Crosshair Scheme",
+    icon: <ViewList />,
+    tooltip: "",
+  },
+  "crosshair-palette": {
+    component: CrosshairPalette,
+    name: "Crosshair Palette",
+    icon: <Palette />,
     tooltip: "",
   },
   "crosshair-inline": {
     component: CrosshairOnline,
-    name: "在线准星库",
+    name: "Online Crosshair Library",
     icon: <TravelExplore />,
     tooltip: "",
   },
   "crosshair-download": {
-    component: CrosshairDownloaded,
-    name: "本地准星库",
+    component: CrosshairLocal,
+    name: "Local Crosshair Library",
     icon: <CloudDownload />,
     tooltip: "",
   },
   document: {
-    component: () => <></>,
-    name: "文档",
+    component: Document,
+    name: "Help Document",
     icon: <MenuBook />,
     tooltip: "",
   },
   license: {
-    component: () => <></>,
-    name: "许可证",
+    component: AppLicense,
+    name: "License",
     icon: <License />,
     tooltip: "",
   },
   privacy: {
-    component: () => <></>,
-    name: "隐私申明",
+    component: Privacy,
+    name: "Privacy Tip",
     icon: <PrivacyTip />,
     tooltip: "",
   },
   settings: {
     component: SettingsPanel,
-    name: "设置",
+    name: "Settings",
     icon: <Settings />,
     tooltip: "",
   },
   about: {
     component: About,
-    name: "关于",
+    name: "About",
     icon: <Info />,
     tooltip: "",
   },

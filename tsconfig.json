@@ -24,10 +24,11 @@
 
     "baseUrl": ".",
     "paths": {
-      "@locale/*": ["locale/*"],
       "@public/*": ["src-public/*"],
+      "@locale/*": ["src-public/locale/*"],
       "@utils/*": ["src-public/utils/*"],
       "@hooks/*": ["src-public/hooks/*"],
+      "@plugins/*": ["src-public/plugins/*"],
       "@components/*": ["src-public/components/*"]
     }
   },

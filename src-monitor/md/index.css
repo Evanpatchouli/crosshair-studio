@@ -1,0 +1,16 @@
+.markdown {
+  a {
+    color: #007bff;
+    text-decoration: none;
+
+    &:hover {
+      color: #3a93f3;
+    }
+    &:active {
+      color: #0056b3;
+    }
+    &:visited {
+      color: #6c757d;
+    }
+  }
+}

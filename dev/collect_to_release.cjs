@@ -15,7 +15,7 @@ if (fs.existsSync(releaseDir)) {
 }
 
 // 要收集的文件和文件夹列表
-const itemsToCollect = ["Crosshair Studio.exe", "readme.md", "readme_cn.md", "LICENSE", "crosshairs", "icons"];
+const itemsToCollect = ["Crosshair Studio.exe", "readme.md", "readme_cn.md", "LICENSE", "crosshairs", "locales", "icons"];
 
 // 创建目标目录，如果不存在
 if (!fs.existsSync(targetDir)) {

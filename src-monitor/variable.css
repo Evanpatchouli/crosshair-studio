@@ -1,4 +1,13 @@
 :root {
-  --monitor-background: #1a2a3a;
-  --monitor-text-color: #f0f0f0;
+  --monitor-background-dark: #1a2a3a;
+  --monitor-background-light: #fefefe;
+  --monitor-background: var(--monitor-background-dark);
+
+  --monitor-text-color-dark: #f0f0f0;
+  --monitor-text-color-light: #1a2a3a;
+  --monitor-text-color: var(--monitor-text-color-dark);
+
+  --monitor-crosshair-bgColor-dark: #284a6c6b;
+  --monitor-crosshair-bgColor-light: #bcc8d36b;
+  --monitor-crosshair-bgColor: var(--monitor-crosshair-bgColor-dark);
 }

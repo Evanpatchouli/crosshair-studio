@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod handler;
+mod plugins;
+use plugins::tauri_plugin_share;
 mod setup;
 mod tray;
 mod util;
@@ -17,9 +19,9 @@ fn greet(name: &str) -> String {
 fn main() {
     let system_tray = tray();
     tauri::Builder::default()
-        .setup(|_app| {
+        .setup(|app| {
             logger::info("Launching Crosshair Studio...");
-            setup::main();
+            setup::main(app);
             logger::info("Crosshair Studio Launched.");
             Ok(())
         })
@@ -27,14 +29,20 @@ fn main() {
             greet,
             handler::get_images_from_directory,
             handler::read_image,
+            handler::delete_image,
             handler::get_appdir,
             handler::is_dev,
-            handler::log
+            handler::log,
+            handler::open_directory_in_fs,
+            handler::get_locales,
+            handler::get_locale_messages,
+            handler::create_text_crosshair,
+            handler::create_url_crosshair
         ])
         .system_tray(system_tray)
         .on_system_tray_event(tray_handler)
+        .plugin(tauri_plugin_share::init())
         .plugin(tauri_plugin_store::Builder::default().build())
-        .plugin(tauri_plugin_fs_watch::init())
         .run(tauri::generate_context!())
         .expect("error while running Crosshair Studio application");
 }

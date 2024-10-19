@@ -1,0 +1,9 @@
+.img-container {
+  border: 1px solid #9999997d;
+  border-radius: 6px;
+
+  &:hover {
+    border-color: currentColor;
+    cursor: pointer;
+  }
+}

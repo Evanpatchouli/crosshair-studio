@@ -1,73 +1,89 @@
 import { IconButton, ImageList, ImageListItem, ImageListItemBar, Stack, Tooltip } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-
-const crosshairs = Array.from({ length: 10 }).map((_, i) => ({
-  url:
-    i % 2 === 0
-      ? `https://www.cscrosshair.com/img/crosshairimg/afro.png`
-      : "https://th.bing.com/th/id/R.3b3da8067b9625e7cbf843b572dd1fb2?rik=zQPBtTBiXpHvGg&riu=http%3a%2f%2fpic.616pic.com%2fys_img%2f00%2f14%2f24%2fsjCfk1OXLL.jpg&ehk=Hm0%2b3G0UV1Wz1olfegO3D2KMdx2LLXRc9%2bK5Pm2OgVU%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
-  title: `准星${i}`,
-  desc: i % 2 === 0 ? `这是准星${i}的描述` : "",
-}));
+import DownloadIcon from "@mui/icons-material/Download";
+import React, { useEffect, useRef } from "react";
+import listCrosshairs, { OSSImage } from "./api";
+import { useResize } from "@evanpatchouli/react-hooks-kit";
+import { classes, images_sorter } from "@public/utils";
+import useLocalStorage from "@public/hooks/useLocalStorage";
+import useLocale from "@public/hooks/uselocale";
 
 export default function CrosshairOnline() {
+  const $ = useLocale();
+  const [images, setImages] = React.useState<Array<OSSImage>>([]);
+  const images_sorted = images.sort(images_sorter);
+  useEffect(() => {
+    listCrosshairs({ word: "crosshair icon", count: 1000 }).then((res) => {
+      setImages(res.list);
+    });
+  }, []);
+  const listRef = useRef<HTMLDivElement>(null);
+  const listSize = useResize({ target: listRef });
+  const [imgBgType] = useLocalStorage<"grey" | "grid">("img_bg_type");
   return (
     <>
-      <h2>浏览在线准星</h2>
-      <ImageList sx={{ width: 600, height: 400, borderRadius: 3 }} cols={3} rowHeight={150} gap={20}>
-        {crosshairs.map((item) => (
-          <ImageListItem
-            key={item.title}
-            sx={{
-              overflow: "hidden",
-              borderRadius: 3,
-              // border: "1px solid #eaeaea",
-              boxShadow: "0 0 1px rgba(0, 0, 0, 0.2)",
-              backgroundColor: "rgba(255, 255, 255, 0.07)",
-            }}
-          >
-            <img
-              // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-              src={`${item.url}`}
-              alt={item.title}
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
+      <h2>{$("Online Crosshair Library")}</h2>
+      <div ref={listRef} style={{ width: "100%", height: "100%", overflowY: "auto" }}>
+        <ImageList
+          sx={{ width: "100%", height: "auto", borderRadius: 3, px: "20px", boxSizing: "border-box" }}
+          cols={Math.floor(listSize.width / 200) || 1}
+          rowHeight={150}
+          gap={20}
+        >
+          {images_sorted.map((item) => (
+            <ImageListItem
+              key={item.name}
+              className={classes(["crosshair-container", imgBgType === "grid" ? "img-grid-bg" : "img-grey-bg"])}
+              sx={{
+                overflow: "hidden",
+                borderRadius: 3,
+                boxShadow: "0 0 1px rgba(0, 0, 0, 0.2)",
               }}
-            />
-            <ImageListItemBar
-              title={item.title}
-              // subtitle={item.subtitle}
-              actionIcon={
-                <Stack flexDirection="row" alignItems="center">
-                  {item.desc && (
-                    <Tooltip title={item.desc}>
-                      <InfoIcon
-                        sx={{
-                          color: "rgba(255, 255, 255, 0.54)",
-                          "&:hover": {
-                            cursor: "pointer",
-                          },
-                        }}
-                        aria-label={`info about ${item.title}`}
-                      />
+            >
+              <img
+                src={`${item.url}`}
+                alt={item.name}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                }}
+              />
+              <ImageListItemBar
+                title={<span style={{ fontSize: "small" }}>{item.name}</span>}
+                actionIcon={
+                  <Stack flexDirection="row" alignItems="center">
+                    {item.desc && (
+                      <Tooltip title={item.desc.replace("Size", $("Size")).replace("Datetime", $("Datetime"))}>
+                        <IconButton
+                          sx={{
+                            color: "rgba(255, 255, 255, 0.54)",
+                          }}
+                          aria-label={`info about ${item.name}`}
+                          size="small"
+                        >
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title={$("Download")}>
+                      <IconButton
+                        sx={{ color: "rgba(255, 255, 255, 0.54)" }}
+                        aria-label={`apply ${item.name}`}
+                        size="small"
+                      >
+                        <DownloadIcon fontSize="small" />
+                      </IconButton>
                     </Tooltip>
-                  )}
-                  <Tooltip title="应用此准星">
-                    <IconButton sx={{ color: "rgba(255, 255, 255, 0.54)" }} aria-label={`apply ${item.title}`}>
-                      <AddBoxIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              }
-            />
-          </ImageListItem>
-        ))}
-      </ImageList>
+                  </Stack>
+                }
+              />
+            </ImageListItem>
+          ))}
+        </ImageList>
+      </div>
     </>
   );
 }

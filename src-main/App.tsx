@@ -1,6 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import useInit from "./hooks/useInit";
-import Splash from "./splash";
+import Splash from "@public/components/splash";
 import Crosshair from "./crosshair";
 import "./App.css";
 
@@ -12,7 +12,17 @@ function Apploader() {
   }
   return (
     <>
-      <Crosshair />
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Crosshair />
+      </div>
     </>
   );
 }

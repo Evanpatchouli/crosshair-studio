@@ -5,9 +5,6 @@ const fse = require("fs-extra");
 // 定义路径
 const rootPath = path.resolve(__dirname, "../");
 const srcTauriPath = path.resolve(rootPath, "src-tauri");
-const publicPath = path.resolve(rootPath, "public");
-const crosshairsPath = path.resolve(publicPath, "crosshairs");
-const srcCrosshairsPath = path.resolve(srcTauriPath, "crosshairs");
 
 // 复制文件和文件夹的通用函数
 const copyItem = (source, destination) => {
@@ -17,11 +14,6 @@ const copyItem = (source, destination) => {
   } else {
     console.error(`Source item ${source} does not exist`);
   }
-};
-
-// 复制 crosshairs 文件夹
-const copyCrosshairs = () => {
-  copyItem(crosshairsPath, srcCrosshairsPath);
 };
 
 // 复制 LICENSE 文件
@@ -37,12 +29,9 @@ const copyReadme = () => {
 
 // 主函数
 const main = () => {
-  copyCrosshairs();
   copyLicense();
   copyReadme();
   console.log("All files copied successfully.");
-  // 执行 npm run tauri build
-  // require('child_process').execSync('tauri build', { stdio: 'inherit' });
 };
 
 main();

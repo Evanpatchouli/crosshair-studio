@@ -8,17 +8,17 @@
 - [Windows exe Installer]: An executable exe installer for 64-bit Windows 10 and later platforms.
 - [Windows Portable]: A compressed executable file for 64-bit Windows 10 and later platforms, no installation required.
 
-[windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_msi.zip
-[windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_setup.zip
-[windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v1.0.0/Crosshair.Studio_1.0.0_x64_windows_10_portable.zip
+[windows msi Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v2.0.0/Crosshair.Studio_2.0.0_x64_windows_10_msi.zip
+[windows exe Installer]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v2.0.0/Crosshair.Studio_2.0.0_x64_windows_10_setup.zip
+[windows Portable]: https://github.com/Evanpatchouli/crosshair-studio/releases/download/v2.0.0/Crosshair.Studio_2.0.0_x64_windows_10_portable.zip
 
 ## Usage
 
-Double-click to open the program, and a transparent crosshair will be displayed on the desktop. The program comes with 7 `+` symbols as the default crosshair pattern, which can be switched at will.
+Double-click to open the program, and a transparent crosshair will be displayed on the desktop. The program comes with 12 `+` symbols as the default crosshair pattern, which can be switched at will.
 
 After the program is started, the crosshair is placed on the top layer by default, and the mouse is penetrated by default, that is, the crosshair image will not block the click events of other windows.
 
-- Crosshair Directory: The `crosshair` folder under the installed directory of the program is the crosshair directory, where you can add transparent background crosshair images (`*.svg`, `*.png`, `*.jpg`) by yourself.
+- Crosshair Directory: The `crosshairs` folder under the installed directory of the program is the crosshair directory, where you can add transparent background crosshair images (`*.svg`, `*.png`, `*.jpg`) by yourself.
 - System Tray: After the program is running, an icon will be displayed in the system tray. Right-click the icon to open the menu:
   - 固定置顶: Fix the crosshair on the top layer of the desktop
   - 取消置顶: Unpin the crosshair from the top layer of the desktop
@@ -28,19 +28,19 @@ After the program is started, the crosshair is placed on the top layer by defaul
   - 切换默认准星: Switch to the set default crosshair (default to the first crosshair when not set)
   - 设为默认准星: Set the crosshair of the current app as the default crosshair
   - 控制台: Open the console for more detailed app configuration
-  - 重启: Restart the app to refresh the crosshair list
+  - 重启: Restart the app
   - 退出: Exit the app
 - Global Hotkeys: (System-level hotkeys)
-  - `Ctrl + Alt + Q`: Switch crosshair
-  - `Ctrl + Alt + D`: Switch default crosshair
-  - `Ctrl + Alt + S`: Set as default crosshair
-  - `Ctrl + Alt + P`: Pin to Top On/Off
-  - `Ctrl + Alt + T`: Mouse Penetration On/Off
-  - `Ctrl + Alt + C`: Open console (Planned as a feature in V2)
-  - `Ctrl + Alt + R`: Restart the app
-  - `Ctrl + Alt + E`: Exit the app
+  - Switch Crosshair: `Ctrl + Alt + Q`, can be set
+  - Switch Default Crosshair: `Ctrl + Alt + D`, can be set
+  - Set as Default Crosshair: `Ctrl + Alt + S`, can be set
+  - Pin On/Off: `Ctrl + Alt + P`, can be set
+  - Penetrate On/Off: Default off, can be set
+  - Open Console: `Ctrl + Alt + C`, can be set
+  - Restart App: `Ctrl + Alt + R`, can be set
+  - Exit App: `Ctrl + Alt + E`, can be set
 - App Hotkeys: (App-level hotkeys)
-  - `Q`: Switch crosshair
+  - Switch Crosshair: `Q`
 
 ## Uninstallation
 
@@ -49,8 +49,8 @@ The Crosshair Studio software itself and its resource files are located in the i
 ## Plan
 
 - [x] Full hotkey support
-- [ ] Enable console
-- [ ] Multi-language support
+- [x] Enable console
+- [x] Multi-language support
 - [ ] External configuration file
 - [ ] Cross-platform support
 

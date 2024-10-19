@@ -2,11 +2,14 @@ import { exit, relaunch } from "@tauri-apps/api/process";
 import { type Cache } from "../cache";
 import { getMonitorWindow, isRegistered, register, unregister } from "@utils/index";
 import toast from "react-hot-toast";
+import { emit } from "@tauri-apps/api/event";
 
 const globalHotKeys = {
   switchCrosshair: {
+    name: "switchCrosshair",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "Q"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "Q"] as ["CommandOrControl", "Alt", "Q"],
+    keys: ["CommandOrControl", "Alt", "Q"],
     handler: (cache: Cache) => {
       cache.switchCrosshair();
     },
@@ -16,9 +19,23 @@ const globalHotKeys = {
         if (!globalHotKeys.switchCrosshair.isRegistered) {
           await register(globalHotKeys.switchCrosshair.keys, globalHotKeys.switchCrosshair.handler.bind(null, cache));
           globalHotKeys.switchCrosshair.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of switchCrosshair:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -34,8 +51,10 @@ const globalHotKeys = {
   },
 
   switchToDefaultCrosshair: {
+    name: "switchToDefaultCrosshair",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "D"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "D"] as ["CommandOrControl", "Alt", "D"],
+    keys: ["CommandOrControl", "Alt", "D"],
     handler: (cache: Cache) => {
       cache.switchToDefaultCrosshair();
     },
@@ -45,9 +64,23 @@ const globalHotKeys = {
         if (!globalHotKeys.switchToDefaultCrosshair.isRegistered) {
           await register(globalHotKeys.switchToDefaultCrosshair.keys, globalHotKeys.switchToDefaultCrosshair.handler.bind(null, cache));
           globalHotKeys.switchToDefaultCrosshair.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of switchToDefaultCrosshair:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -57,14 +90,21 @@ const globalHotKeys = {
           globalHotKeys.switchToDefaultCrosshair.isRegistered = false;
         }
       } catch (error) {
-        console.error("Failed to unregister hotkey of switchToDefaultCrosshair:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
   },
 
   setCurrentCrosshairAsDefault: {
+    name: "setCurrentCrosshairAsDefault",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "S"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "S"] as ["CommandOrControl", "Alt", "S"],
+    keys: ["CommandOrControl", "Alt", "S"],
     handler: (cache: Cache) => {
       cache.setCurrentCrosshairAsDefault();
     },
@@ -74,9 +114,23 @@ const globalHotKeys = {
         if (!globalHotKeys.setCurrentCrosshairAsDefault.isRegistered) {
           await register(globalHotKeys.setCurrentCrosshairAsDefault.keys, globalHotKeys.setCurrentCrosshairAsDefault.handler.bind(null, cache));
           globalHotKeys.setCurrentCrosshairAsDefault.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of setCurrentCrosshairAsDefault:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -86,14 +140,21 @@ const globalHotKeys = {
           globalHotKeys.setCurrentCrosshairAsDefault.isRegistered = false;
         }
       } catch (error) {
-        console.error("Failed to unregister hotkey of setCurrentCrosshairAsDefault:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
   },
 
   togglePinned: {
+    name: "togglePinned",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "P"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "P"] as ["CommandOrControl", "Alt", "P"],
+    keys: ["CommandOrControl", "Alt", "P"],
     handler: (cache: Cache) => {
       cache.toggleAlwaysOnTop({
         onTop() {
@@ -110,9 +171,23 @@ const globalHotKeys = {
         if (!globalHotKeys.togglePinned.isRegistered) {
           await register(globalHotKeys.togglePinned.keys, globalHotKeys.togglePinned.handler.bind(null, cache));
           globalHotKeys.togglePinned.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of togglePinned:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -128,8 +203,10 @@ const globalHotKeys = {
   },
 
   toggleIgnoreCursorEvents: {
+    name: "toggleIgnoreCursorEvents",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "T"] as const,
+    defaultKeys: [] as [],
+    keys: [],
     handler: (cache: Cache) => {
       cache.toggleIgnoreCursorEvents();
     },
@@ -144,9 +221,23 @@ const globalHotKeys = {
             globalHotKeys.toggleIgnoreCursorEvents.handler.bind(null, cache)
           );
           globalHotKeys.toggleIgnoreCursorEvents.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of toggleIgnoreCursorEvents:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -161,9 +252,11 @@ const globalHotKeys = {
     },
   },
 
-  monitor: {
+  openMonitor: {
+    name: "openMonitor",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "C"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "C"] as ["CommandOrControl", "Alt", "C"],
+    keys: ["CommandOrControl", "Alt", "C"],
     handler: async () => {
       const monitor = getMonitorWindow();
       // if (monitor?.isVisible) {
@@ -180,23 +273,43 @@ const globalHotKeys = {
       });
     },
     async register() {
-      globalHotKeys.monitor.isRegistered = await isRegistered(globalHotKeys.monitor.keys);
-      if (!globalHotKeys.monitor.isRegistered) {
-        await register(globalHotKeys.monitor.keys, globalHotKeys.monitor.handler);
-        globalHotKeys.monitor.isRegistered = true;
+      try {
+        globalHotKeys.openMonitor.isRegistered = await isRegistered(globalHotKeys.openMonitor.keys);
+        if (!globalHotKeys.openMonitor.isRegistered) {
+          await register(globalHotKeys.openMonitor.keys, globalHotKeys.openMonitor.handler);
+          globalHotKeys.openMonitor.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
+        }
+      } catch (error) {
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
-      if (globalHotKeys.monitor.isRegistered) {
-        await unregister(globalHotKeys.monitor.keys);
-        globalHotKeys.monitor.isRegistered = false;
+      if (globalHotKeys.openMonitor.isRegistered) {
+        await unregister(globalHotKeys.openMonitor.keys);
+        globalHotKeys.openMonitor.isRegistered = false;
       }
     },
   },
 
   reload: {
+    name: "reload",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "R"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "R"] as ["CommandOrControl", "Alt", "R"],
+    keys: ["CommandOrControl", "Alt", "R"],
     handler: () => {
       relaunch();
     },
@@ -206,9 +319,23 @@ const globalHotKeys = {
         if (!globalHotKeys.reload.isRegistered) {
           await register(globalHotKeys.reload.keys, globalHotKeys.reload.handler);
           globalHotKeys.reload.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of reload:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
@@ -224,8 +351,10 @@ const globalHotKeys = {
   },
 
   exit: {
+    name: "exit",
     isRegistered: false,
-    keys: ["CommandOrControl", "Alt", "E"] as const,
+    defaultKeys: ["CommandOrControl", "Alt", "E"] as ["CommandOrControl", "Alt", "E"],
+    keys: ["CommandOrControl", "Alt", "E"],
     handler: () => {
       // do something before exit...
       exit();
@@ -236,9 +365,23 @@ const globalHotKeys = {
         if (!globalHotKeys.exit.isRegistered) {
           await register(globalHotKeys.exit.keys, globalHotKeys.exit.handler);
           globalHotKeys.exit.isRegistered = true;
+        } else {
+          const errorText = `Failed to register hotkey of ${this.name}: hotkey_already_registered`;
+          console.error();
+          emit("register-hotkeys-error", {
+            reason: "hotkey_already_registered",
+            keys: this.keys,
+            action: this.name,
+            message: errorText,
+          })
         }
       } catch (error) {
-        console.error("Failed to register hotkey of exit:", error);
+        console.error(`Failed to register hotkey of ${this.name}:`, error);
+        emit("register-hotkeys-error", {
+          reason: error,
+          keys: this.keys,
+          action: this.name,
+        })
       }
     },
     async unregister() {
