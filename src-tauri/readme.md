@@ -18,7 +18,7 @@ Double-click to open the program, and a transparent crosshair will be displayed 
 
 After the program is started, the crosshair is placed on the top layer by default, and the mouse is penetrated by default, that is, the crosshair image will not block the click events of other windows.
 
-- Crosshair Directory: The `crosshairs` folder under the installed directory of the program is the crosshair directory, where you can add transparent background crosshair images (`*.svg`, `*.png`, `*.jpg`) by yourself.
+- Crosshair Directory: The `crosshairs` folder under the installed directory of the program is the crosshair directory, where you can add transparent background crosshair images (`*.svg`, `*.png`, `*.jpg`, `*.jpeg`, `*.gif`) by yourself.
 - System Tray: After the program is running, an icon will be displayed in the system tray. Right-click the icon to open the menu:
   - 固定置顶: Fix the crosshair on the top layer of the desktop
   - 取消置顶: Unpin the crosshair from the top layer of the desktop

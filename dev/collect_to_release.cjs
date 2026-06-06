@@ -1,28 +1,41 @@
 const fs = require("fs");
 const path = require("path");
 const fse = require("fs-extra");
-const archiver = require('archiver');
-const pkg = require('../package.json');
+const archiver = require("archiver");
 
+// ── 读取构建配置 ──
+const pkg = require("../package.json");
+const tauriConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../src-tauri/tauri.conf.json"), "utf8"));
+const cargoToml = fs.readFileSync(path.resolve(__dirname, "../src-tauri/Cargo.toml"), "utf8");
+
+const productName = tauriConf.package.productName;
+const pkgVersion = pkg.version;
+
+// 从 Cargo.toml 提取 crate name（即 release 目录下的 exe 名称）
+const crateNameMatch = cargoToml.match(/^name\s*=\s*"([^"]+)"/m);
+const crateName = crateNameMatch ? crateNameMatch[1] : "crosshair-studio";
+
+// ── 路径常量 ──
 const sourceDir = "./src-tauri/target/release";
 const targetDir = "./release/portable";
 const bundleSourceDir = path.join(sourceDir, "bundle");
 const releaseDir = "./release";
 
-// 清空 releaseDir 目录
+// 辅助：匹配文件名（忽略大小写）
+const matchFilename = (filename, pattern) => filename.toLowerCase() === pattern.toLowerCase();
+
+// ── 清空 releaseDir ──
 if (fs.existsSync(releaseDir)) {
   fse.emptyDirSync(releaseDir);
 }
 
-// 要收集的文件和文件夹列表
-const itemsToCollect = ["Crosshair Studio.exe", "readme.md", "readme_cn.md", "LICENSE", "crosshairs", "locales", "icons"];
+// ── 收集主程序及资源 ──
+const itemsToCollect = [`${crateName}.exe`, "readme.md", "readme_cn.md", "LICENSE", "crosshairs", "locales", "icons"];
 
-// 创建目标目录，如果不存在
 if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
 
-// 复制文件和文件夹
 itemsToCollect.forEach((item) => {
   const sourcePath = path.join(sourceDir, item);
   const targetPath = path.join(targetDir, item);
@@ -39,12 +52,12 @@ itemsToCollect.forEach((item) => {
   }
 });
 
-// 复制 bundle/msi 和 bundle/nsis 中的 .msi 和 .exe 文件
+// ── 从 bundle 产物中复制安装包 ──
 const copyFilesFromDir = (sourceDir, targetDir, extensions) => {
   if (fs.existsSync(sourceDir)) {
     const files = fs.readdirSync(sourceDir);
     files.forEach((file) => {
-      const ext = path.extname(file);
+      const ext = path.extname(file).toLowerCase();
       if (extensions.includes(ext)) {
         const sourcePath = path.join(sourceDir, file);
         const targetPath = path.join(targetDir, file);
@@ -57,78 +70,73 @@ const copyFilesFromDir = (sourceDir, targetDir, extensions) => {
   }
 };
 
-const msiDir = path.join(bundleSourceDir, "msi");
-const nsisDir = path.join(bundleSourceDir, "nsis");
+copyFilesFromDir(path.join(bundleSourceDir, "msi"), releaseDir, [".msi"]);
+copyFilesFromDir(path.join(bundleSourceDir, "nsis"), releaseDir, [".exe"]);
 
-copyFilesFromDir(msiDir, releaseDir, [".msi"]);
-copyFilesFromDir(nsisDir, releaseDir, [".exe"]);
+// ── 扫描 release 目录中的安装包文件（精确匹配当前版本） ──
+const bundleFiles = fs.readdirSync(releaseDir).filter((file) => {
+  const ext = path.extname(file).toLowerCase();
+  if (ext !== ".msi" && ext !== ".exe") return false;
+  // 排除便携版 exe（在 targetDir 中，不在这里）
+  // 只保留文件名中包含版本号的（安装包）
+  return file.includes(pkgVersion);
+});
 
+const msiFile = bundleFiles.find((f) => f.endsWith(".msi"));
+const nsisFile = bundleFiles.find((f) => f.endsWith(".exe"));
+
+console.log(`Detected MSI: ${msiFile || "(none)"}`);
+console.log(`Detected NSIS: ${nsisFile || "(none)"}`);
+
+// ── 压缩工具函数 ──
 async function zipDir(sourceDir, outPath) {
   const output = fs.createWriteStream(outPath);
-  const arch = archiver('zip', {
-    zlib: { level: 9 } // 设置压缩级别
-  });
+  const arch = archiver("zip", { zlib: { level: 9 } });
 
-  output.on('close', () => {
+  output.on("close", () => {
     console.log(`Compression finished, totally ${arch.pointer()} bytes.`);
   });
-
-  arch.on('error', (err) => {
-    throw err;
-  });
-
+  arch.on("error", (err) => { throw err; });
   arch.pipe(output);
-
   arch.directory(sourceDir, false);
-
   await arch.finalize();
 }
 
 async function zipFile(sourcePath, outPath) {
   const output = fs.createWriteStream(outPath);
-  const arch = archiver('zip', {
-    zlib: { level: 9 } // 设置压缩级别
-  });
+  const arch = archiver("zip", { zlib: { level: 9 } });
 
-  output.on('close', () => {
+  output.on("close", () => {
     console.log(`Compression finished, totally ${arch.pointer()} bytes.`);
   });
-
-  arch.on('error', (err) => {
-    throw err;
-  });
-
+  arch.on("error", (err) => { throw err; });
   arch.pipe(output);
-
   arch.append(fs.createReadStream(sourcePath), { name: path.basename(sourcePath) });
-
   await arch.finalize();
 }
 
+// ── 打包便携版 ──
 const portable = path.resolve(targetDir);
-const msi = path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_en-US.msi`);
-const nsis = path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64-setup.exe`);
+zipDir(portable, path.resolve(releaseDir, `${productName}_${pkgVersion}_x64_windows_10_portable.zip`))
+  .then(() => fse.removeSync(portable))
+  .catch((err) => console.error(err));
 
-zipDir(portable, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_portable.zip`))
-  .then(() => {
-    // 删除 portable 目录
-    fse.removeSync(portable);
-  }).catch(err => {
-    console.error(err);
-  });
+// ── 打包 MSI（文件名精确锁定构建产物） ──
+if (msiFile) {
+  const msi = path.resolve(releaseDir, msiFile);
+  zipFile(msi, path.resolve(releaseDir, `${productName}_${pkgVersion}_x64_windows_10_msi.zip`))
+    .then(() => fse.removeSync(msi))
+    .catch((err) => console.error(err));
+} else {
+  console.warn("No MSI file found, skipping MSI packaging");
+}
 
-zipFile(msi, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_msi.zip`))
-  .then(() => {
-    // 删除 msi 文件
-    fse.removeSync(msi);
-  }).catch(err => {
-    console.error(err);
-  });
-
-zipFile(nsis, path.resolve(releaseDir, `Crosshair Studio_${pkg.version}_x64_windows_10_nsis.zip`))
-  .then(() => {
-    // 删除 nsis 文件
-    fse.removeSync(nsis);
-  }).catch(err => {
-    console.error(err);
-  });
+// ── 打包 NSIS（文件名精确锁定构建产物） ──
+if (nsisFile) {
+  const nsis = path.resolve(releaseDir, nsisFile);
+  zipFile(nsis, path.resolve(releaseDir, `${productName}_${pkgVersion}_x64_windows_10_nsis.zip`))
+    .then(() => fse.removeSync(nsis))
+    .catch((err) => console.error(err));
+} else {
+  console.warn("No NSIS installer found, skipping NSIS packaging");
+}
