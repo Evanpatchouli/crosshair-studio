@@ -52,5 +52,10 @@
       "E"
     ]
   },
+  "online_crosshair": {
+    "api_url": "",
+    "request_method": "GET",
+    "headers": []
+  },
   "enable_system_notification": true
 }

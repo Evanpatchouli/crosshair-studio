@@ -1,101 +1,108 @@
+/**
+ * 通用在线准星 API 请求模块
+ *
+ * 根据用户配置的接口地址和请求方式，获取准星列表。
+ * 支持自定义请求头（硬编码值或从文件读取）。
+ */
 import { ResponseType } from '@tauri-apps/api/http';
+import { readTextFile } from '@tauri-apps/api/fs';
 import fetch from '@public/utils/fetch';
-import { xmlToJson } from "@public/utils";
-import cfg from "./cfg";
-import { Authorize } from "./utils/index";
+import { useConfigStore } from '@public/hooks/useConfig';
+import type { OnlineCrosshairConfig } from '@public/config/defaults';
 
-type Params = {
-  word: string;
-  start?: string;
-  count: number;
-  token?: string;
-}
-
-const list_v2_auth_v1 = async (params: Params) => {
-  const timestamp = Date.now();
-  const timeGMT = new Date(timestamp).toUTCString();
-  const query = {
-    "list-type": 2,
-    delimiter: "",
-    "prefix": `crosshair-studio/crosshairs/`,
-    "start-after": params.start,
-    "max-keys": params.count,
-    "continuation-token": params.token,
-  } as {
-    "list-type": 2,
-    "delimiter"?: string,
-    "start-after"?: string,
-    "continuation-token"?: string,
-    "max-keys"?: number,
-    "prefix"?: string,
-    "encoding-type"?: "url",
-    /** 指定是否在返回结果中包含owner信息 */
-    "fetch-owner"?: boolean,
-  };
-  type QK = keyof typeof query;
-  const qs = encodeURI(
-    Object.keys(query).filter(key => query[key as QK] !== void 0).map((key) => `${key}=${query[key as QK]}`).join("&")
-  );
-  const sign = Authorize({
-    uri: `/${cfg.oss.bucket}/`,
-    method: 'GET',
-    timestamp: timestamp,
-    headers: {
-      'x-oss-date': timeGMT,
-    },
-  });
-  const res = await fetch.get(`http://${cfg.oss.host}/?${qs}`, {
-    headers: {
-      // GMT format
-      'x-oss-date': timeGMT,
-      "Authorization": sign,
-    },
-    timeout: 50,
-    responseType: ResponseType.Text
-  });
-  if (res.status === 200) {
-    const xml = res.data;
-    const data = xmlToJson(xml);
-    const NextContinuationToken = data.NextContinuationToken;
-    const objects = data.Contents;
-    const crosshairs = objects.map((item: any) => {
-      const filename = item.Key.split("/").pop();
-      // 保留 2 位小数
-      const kbSize = (item.Size / 1024).toFixed(2);
-      const localTime = new Date(item.LastModified).toLocaleString();
-      return {
-        name: filename,
-        url: `http://${cfg.oss.host}/${item.Key}`,
-        size: item.Size,
-        lastModified: item.LastModified,
-        desc: `Size: ${kbSize} KB Datetime: ${localTime}`,
-      }
-    }).filter((item: any) => item.name !== "");
-    return {
-      list: crosshairs,
-      NextContinuationToken,
-    };
-  }
-  return {
-    list: [],
-    NextContinuationToken: null,
-  }
-}
-
-
-export type OSSImage = {
+/** 在线准星项 */
+export interface OnlineCrosshairItem {
+  /** 准星文件名/显示名 */
   name: string;
+  /** 图片可直接访问的 URL */
   url: string;
-  size: number;
-  lastModified: number;
-  desc?: string;
-};
-
-const listCrosshairs = async (params: Params) => {
-  return await list_v2_auth_v1(params) as {
-    list: OSSImage[];
-    NextContinuationToken: string | null;
-  };
+  /** 可选，文件大小 (bytes) */
+  size?: number;
+  /** 可选，最后修改时间 */
+  lastModified?: string;
 }
 
-export default listCrosshairs;
+/** 预期的 API 响应格式 */
+interface OnlineCrosshairResponse {
+  list: OnlineCrosshairItem[];
+}
+
+/**
+ * 组装请求头：合并用户配置的自定义 headers 和基础 headers。
+ * 支持从文件路径读取 value（value_from_file 不为空时，读取文件内容替代 value 字段）。
+ */
+async function buildHeaders(
+  config: OnlineCrosshairConfig
+): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {};
+
+  for (const h of config.headers) {
+    if (!h.field) continue;
+
+    if (h.value_type === "file" && h.value_from_file) {
+      try {
+        const fileContent = await readTextFile(h.value_from_file);
+        headers[h.field] = fileContent.trim();
+      } catch {
+        console.warn(
+          `[online-crosshair] Failed to read header value from file: ${h.value_from_file}, skipping header "${h.field}"`
+        );
+      }
+    } else if (h.value_type === "inline" && h.value) {
+      headers[h.field] = h.value;
+    }
+  }
+
+  return headers;
+}
+
+/**
+ * 根据用户配置获取在线准星列表。
+ *
+ * @returns 准星列表（请求失败或格式错误时返回空数组）
+ */
+export async function fetchOnlineCrosshairs(): Promise<OnlineCrosshairItem[]> {
+  const config = useConfigStore.getState().config.online_crosshair;
+
+  if (!config.api_url) {
+    return [];
+  }
+
+  const headers = await buildHeaders(config);
+
+  try {
+    const options: Record<string, unknown> = {
+      headers,
+      responseType: ResponseType.JSON,
+    };
+
+    let response: { status: number; data: unknown };
+
+    if (config.request_method === 'POST') {
+      response = await fetch.post(config.api_url, undefined, options);
+    } else {
+      response = await fetch.get(config.api_url, options);
+    }
+
+    if (response.status !== 200) {
+      console.warn(
+        `[online-crosshair] API returned status ${response.status}`
+      );
+      return [];
+    }
+
+    const body = response.data as OnlineCrosshairResponse;
+
+    if (!body || !Array.isArray(body.list)) {
+      console.warn(
+        '[online-crosshair] API response format invalid: expected { list: [...] }'
+      );
+      return [];
+    }
+
+    return body.list;
+  } catch (error) {
+    console.error('[online-crosshair] Failed to fetch crosshairs:', error);
+    throw error;
+  }
+}

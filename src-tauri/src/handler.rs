@@ -238,6 +238,11 @@ fn default_config_json() -> &'static str {
     "reload": ["CommandOrControl", "Alt", "R"],
     "exit": ["CommandOrControl", "Alt", "E"]
   },
+  "online_crosshair": {
+    "api_url": "",
+    "request_method": "GET",
+    "headers": []
+  },
   "enable_system_notification": false
 }"#
 }

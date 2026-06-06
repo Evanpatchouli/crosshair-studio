@@ -135,4 +135,21 @@ export type TextKey = "Locale" |
   "Invalid URL" |
   "URL must end with.png,.jpg,.jpeg,.gif,.svg,.txt,.url" |
   "#Help" |
-  "Config file has been saved to config.json in the app directory. Manual edits to this file will only take effect after restarting the app."
+  "Config file has been saved to config.json in the app directory. Manual edits to this file will only take effect after restarting the app." |
+  "Configure API" |
+  "API Configuration" |
+  "API URL" |
+  "Request Method" |
+  "Custom Headers (optional)" |
+  "No custom headers configured" |
+  "Header Field" |
+  "Header Value" |
+  "Or read from file" |
+  "Add Header" |
+  "Save & Load" |
+  "Loading..." |
+  "No API endpoint configured." |
+  "Configure Now" |
+  "No crosshairs found. Click refresh to load." |
+  "Refresh" |
+  "Expected API response"

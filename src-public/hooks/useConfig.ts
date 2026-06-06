@@ -20,6 +20,7 @@ import {
   type BehaviorConfig,
   type HotkeysConfig,
   type HotkeyBinding,
+  type OnlineCrosshairConfig,
   DEFAULT_CONFIG,
   deepMerge,
 } from "@public/config/defaults";
@@ -48,6 +49,8 @@ interface ConfigStore {
   updateHotkey: (key: keyof HotkeysConfig, binding: HotkeyBinding) => Promise<void>;
   /** 更新单个标量配置项 */
   updateScalar: <K extends ScalarConfigKeys>(key: K, value: ScalarConfigValue<K>) => Promise<void>;
+  /** 更新在线准星配置 */
+  updateOnlineCrosshair: (patch: Partial<OnlineCrosshairConfig>) => Promise<void>;
 }
 
 /** 标量配置项（非嵌套对象） */
@@ -146,6 +149,15 @@ const useConfigStore = create<ConfigStore>((set, getState) => ({
     const newConfig: CrosshairStudioConfig = {
       ...state.config,
       [key]: value,
+    };
+    await state.save(newConfig);
+  },
+
+  updateOnlineCrosshair: async (patch: Partial<OnlineCrosshairConfig>) => {
+    const state = getState();
+    const newConfig: CrosshairStudioConfig = {
+      ...state.config,
+      online_crosshair: { ...state.config.online_crosshair, ...patch },
     };
     await state.save(newConfig);
   },

@@ -8,6 +8,29 @@
 // ── 快捷键值类型 ──
 export type HotkeyBinding = string[];
 
+// ── 在线准星配置 ──
+export type HeaderValueType = "inline" | "file";
+
+export interface OnlineCrosshairHeader {
+  /** 请求头字段名，如 "Authorization" */
+  field: string;
+  /** 值的来源方式：inline=硬编码，file=从文件读取 */
+  value_type: HeaderValueType;
+  /** 硬编码的值（仅 value_type 为 inline 时使用） */
+  value: string;
+  /** 从文件路径读取值（仅 value_type 为 file 时使用） */
+  value_from_file: string;
+}
+
+export interface OnlineCrosshairConfig {
+  /** API 接口地址，为空时不发起请求 */
+  api_url: string;
+  /** 请求方式 */
+  request_method: "GET" | "POST";
+  /** 自定义请求头列表 */
+  headers: OnlineCrosshairHeader[];
+}
+
 // ── 准星显示参数 ──
 export interface CrosshairDisplayConfig {
   /** 准星图片宽度 (px)，范围 0-400 */
@@ -66,6 +89,8 @@ export interface CrosshairStudioConfig {
   behavior: BehaviorConfig;
   /** 快捷键绑定 */
   hotkeys: HotkeysConfig;
+  /** 在线准星配置 */
+  online_crosshair: OnlineCrosshairConfig;
   /** 系统通知开关 */
   enable_system_notification: boolean;
 }
@@ -96,6 +121,11 @@ export const DEFAULT_CONFIG: CrosshairStudioConfig = {
     open_monitor: ["CommandOrControl", "Alt", "C"],
     reload: ["CommandOrControl", "Alt", "R"],
     exit: ["CommandOrControl", "Alt", "E"],
+  },
+  online_crosshair: {
+    api_url: "",
+    request_method: "GET",
+    headers: [],
   },
   enable_system_notification: false,
 };
