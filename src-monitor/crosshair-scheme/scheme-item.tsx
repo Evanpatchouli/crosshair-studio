@@ -26,6 +26,7 @@ import { toast } from "../utils/index";
 import { classes, syncShareSchemes } from "@public/utils";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import useLocalStorage from "@public/hooks/useLocalStorage";
+import { useConfigStore } from "@public/hooks/useConfig";
 import styles from "./css/scheme-item.module.css";
 import { useCrosshairSelector } from "../components/crosshair-selector";
 import useLocale from "@public/hooks/uselocale";
@@ -118,14 +119,18 @@ const SchemeItem: React.FC<SchemeItemProps> = ({ scheme, defaultExpanded = false
           sx={{ mr: "1em" }}
           onClick={(e) => {
             e.stopPropagation();
-            queueMicrotask(() => {
+            queueMicrotask(async () => {
+              // 将方案参数写入外置配置文件
+              await useConfigStore.getState().updateCrosshair({
+                width: scheme.width,
+                height: scheme.height,
+                lock_ratio: scheme.lockRatio,
+                canvas_size: scheme.canvasSize,
+                canvas_shape: scheme.canvasShape,
+                enable_invert_filter: scheme.enableInvertFilter,
+              });
+              // 切换当前准星文件名（保留在 localStorage 用于跨窗口同步）
               localStorage.setItem("current_crosshair_name", JSON.stringify(scheme.crosshair));
-              localStorage.setItem("crosshair_width", scheme.width.toString());
-              localStorage.setItem("crosshair_height", scheme.height.toString());
-              localStorage.setItem("crosshair_lock_ratio", scheme.lockRatio.toString());
-              localStorage.setItem("canvas_size", scheme.canvasSize.toString());
-              localStorage.setItem("canvas_shape", JSON.stringify(scheme.canvasShape));
-              localStorage.setItem("enable_canvas_invert_filter", scheme.enableInvertFilter.toString());
               toast.success($("Apply successfully"));
             });
           }}

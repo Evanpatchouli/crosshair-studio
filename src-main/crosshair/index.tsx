@@ -9,6 +9,7 @@ import React from "react";
 import unknownSvg from "/unknown.svg";
 import useLocalStorage from "@hooks/useLocalStorage";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { useConfigStore } from "@public/hooks/useConfig";
 import "./index.css";
 
 export default function Crosshair() {
@@ -35,8 +36,9 @@ export default function Crosshair() {
     }
   }; //data-tauri-drag-region
 
-  const [width] = useLocalStorage<number>("crosshair_width", 200);
-  const [height] = useLocalStorage<number>("crosshair_height", 200);
+  // 从外置配置文件读取准星显示参数（响应式）
+  const width = useConfigStore((s) => s.config.crosshair.width);
+  const height = useConfigStore((s) => s.config.crosshair.height);
 
   useEffect(() => {
     getMainWindow()?.setAlwaysOnTop(cache.isAlwaysOnTop);
@@ -112,10 +114,10 @@ export default function Crosshair() {
   }, [isQueryingImgs, cur, imglist]);
 
   const [current_crosshair_name, store_current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
-  const [canvasSize] = useLocalStorage<number>("canvas_size", 200);
-  const [canvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
-  // 是否启用反色滤镜
-  const [enableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
+  // 从外置配置文件读取画布参数（响应式）
+  const canvasSize = useConfigStore((s) => s.config.crosshair.canvas_size);
+  const canvasShape = useConfigStore((s) => s.config.crosshair.canvas_shape);
+  const enableInvertFilter = useConfigStore((s) => s.config.crosshair.enable_invert_filter);
 
   const isUpdatingFromCur = useRef(false);
   const isUpdatingFromCurrentCrosshairName = useRef(false);

@@ -24,22 +24,26 @@ import toast from "react-hot-toast";
 import Model from "@public/model";
 import { schemes } from "@public/store";
 import useLocale from "@public/hooks/uselocale";
+import { useConfigStore } from "@public/hooks/useConfig";
 
 export default function CrosshaiConfigure() {
   const $ = useLocale();
   const [crosshair_dir] = useLocalStorage("crosshair_dir");
   const [current_crosshair_name] = useLocalStorage<string>("current_crosshair_name");
-  const [width, setWidth] = useLocalStorage<number>("crosshair_width", 200);
-  const [height, setHeight] = useLocalStorage<number>("crosshair_height", 200);
-  const [lockRatio, setLockRatio] = useLocalStorage<boolean>("crosshair_lock_ratio", true);
 
-  const [canvasSize, setCanvasSize] = useLocalStorage<number>("canvas_size", 400);
-  const [canvasShape, setCanvasShape] = useLocalStorage<"rect" | "circle">("canvas_shape", "rect");
+  // 从外置配置文件读取准星显示参数
+  const width = useConfigStore((s) => s.config.crosshair.width);
+  const height = useConfigStore((s) => s.config.crosshair.height);
+  const lockRatio = useConfigStore((s) => s.config.crosshair.lock_ratio);
+  const canvasSize = useConfigStore((s) => s.config.crosshair.canvas_size);
+  const canvasShape = useConfigStore((s) => s.config.crosshair.canvas_shape);
+  const enableInvertFilter = useConfigStore((s) => s.config.crosshair.enable_invert_filter);
+
+  const updateCrosshair = useConfigStore((s) => s.updateCrosshair);
+
   const handleCanvasShapeRadioClick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCanvasShape(e.target.value as any);
+    updateCrosshair({ canvas_shape: e.target.value as "rect" | "circle" });
   };
-  // 是否启用反色滤镜
-  const [enableInvertFilter, setEnableInvertFilter] = useLocalStorage<boolean>("enable_canvas_invert_filter", false);
 
   const [lastScheme, setLastScheme] = useState({
     width,
@@ -51,12 +55,14 @@ export default function CrosshaiConfigure() {
   });
 
   const handleReset = () => {
-    setWidth(lastScheme.width);
-    setHeight(lastScheme.height);
-    setLockRatio(lastScheme.lockRatio);
-    setCanvasSize(lastScheme.canvasSize);
-    setCanvasShape(lastScheme.canvasShape);
-    setEnableInvertFilter(lastScheme.enableInvertFilter);
+    updateCrosshair({
+      width: lastScheme.width,
+      height: lastScheme.height,
+      lock_ratio: lastScheme.lockRatio,
+      canvas_size: lastScheme.canvasSize,
+      canvas_shape: lastScheme.canvasShape,
+      enable_invert_filter: lastScheme.enableInvertFilter,
+    });
   };
 
   const handleSave = () => {
@@ -109,9 +115,11 @@ export default function CrosshaiConfigure() {
               defaultValue={200}
               value={width}
               onChange={(_e, v) => {
-                setWidth(v as number);
+                const newWidth = v as number;
                 if (lockRatio) {
-                  setHeight(v as number);
+                  updateCrosshair({ width: newWidth, height: newWidth });
+                } else {
+                  updateCrosshair({ width: newWidth });
                 }
               }}
               valueLabelDisplay="auto"
@@ -125,9 +133,11 @@ export default function CrosshaiConfigure() {
               defaultValue={200}
               value={height}
               onChange={(_e, v) => {
-                setHeight(v as number);
+                const newHeight = v as number;
                 if (lockRatio) {
-                  setWidth(v as number);
+                  updateCrosshair({ width: newHeight, height: newHeight });
+                } else {
+                  updateCrosshair({ height: newHeight });
                 }
               }}
               valueLabelDisplay="auto"
@@ -139,11 +149,11 @@ export default function CrosshaiConfigure() {
               id="lock-ratio"
               checked={lockRatio}
               onChange={(e) => {
-                setLockRatio(e.target.checked);
+                updateCrosshair({ lock_ratio: e.target.checked });
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setLockRatio(!lockRatio);
+                  updateCrosshair({ lock_ratio: !lockRatio });
                 }
               }}
             />
@@ -158,7 +168,7 @@ export default function CrosshaiConfigure() {
               defaultValue={400}
               value={canvasSize}
               onChange={(_e, v) => {
-                setCanvasSize(v as number);
+                updateCrosshair({ canvas_size: v as number });
               }}
               valueLabelDisplay="auto"
             />
@@ -190,11 +200,11 @@ export default function CrosshaiConfigure() {
               id="enable-invert-filter"
               checked={enableInvertFilter}
               onChange={(e) => {
-                setEnableInvertFilter(e.target.checked);
+                updateCrosshair({ enable_invert_filter: e.target.checked });
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setEnableInvertFilter(!enableInvertFilter);
+                  updateCrosshair({ enable_invert_filter: !enableInvertFilter });
                 }
               }}
             />

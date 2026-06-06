@@ -1,14 +1,16 @@
 import toast from "react-hot-toast";
 import { create } from "zustand";
 import { getMainWindow, getNameOfFilePath } from "@utils/index";
-import store from "@public/store";
+import { useConfigStore } from "@public/hooks/useConfig";
 
 export type Cache = {
   isInitiated: boolean;
   setIsInitiated: (bool: boolean) => void;
   isAlwaysOnTop: boolean;
+  setAlwaysOnTop: (value: boolean) => void;
   toggleAlwaysOnTop(options?: { onTop?: () => void; offTop?: () => void }): void;
   ignoreCursorEvents: boolean;
+  setIgnoreCursorEvents: (value: boolean) => void;
   toggleIgnoreCursorEvents: () => void;
   crosshair_dictionary: string;
   set_crosshair_dictionary: (value: string) => void;
@@ -30,22 +32,31 @@ const useCache = create<Cache>((set, getState) => ({
   isInitiated: false,
   setIsInitiated: (bool: boolean) => set(() => ({ isInitiated: bool })),
   ignoreCursorEvents: true,
+  setIgnoreCursorEvents: (value: boolean) => set(() => ({ ignoreCursorEvents: value })),
   toggleIgnoreCursorEvents: () => {
-    set((state) => ({ ignoreCursorEvents: !state.ignoreCursorEvents }));
-    queueMicrotask(() => {
-      getMainWindow()?.setIgnoreCursorEvents(getState().ignoreCursorEvents);
-      store.set("ignoreCursorEvents", getState().ignoreCursorEvents);
+    set((state) => {
+      const newValue = !state.ignoreCursorEvents;
+      queueMicrotask(() => {
+        getMainWindow()?.setIgnoreCursorEvents(newValue);
+        useConfigStore.getState().updateBehavior({ ignore_cursor_events: newValue });
+      });
+      return { ignoreCursorEvents: newValue };
     });
   },
   isAlwaysOnTop: true,
+  setAlwaysOnTop: (value: boolean) => set(() => ({ isAlwaysOnTop: value })),
   toggleAlwaysOnTop: (options) =>
     set((state) => {
-      if (state.isAlwaysOnTop) {
-        options?.offTop?.();
-      } else {
+      const newValue = !state.isAlwaysOnTop;
+      if (newValue) {
         options?.onTop?.();
+      } else {
+        options?.offTop?.();
       }
-      return { isAlwaysOnTop: !state.isAlwaysOnTop };
+      queueMicrotask(() => {
+        useConfigStore.getState().updateBehavior({ always_on_top: newValue });
+      });
+      return { isAlwaysOnTop: newValue };
     }),
   crosshair_dictionary: "",
   set_crosshair_dictionary: (value: string) => set(() => ({ crosshair_dictionary: value })),
@@ -68,6 +79,10 @@ const useCache = create<Cache>((set, getState) => ({
   defaultCrosshair: "",
   setDefaultCrosshair: (value?: string, silence: boolean = false) => {
     set(() => ({ defaultCrosshair: value }));
+    // 同步到配置文件
+    if (value !== undefined) {
+      useConfigStore.getState().updateBehavior({ default_crosshair: value });
+    }
     if (value && !silence) {
       toast.success(`设置默认准星成功`);
     } else {
@@ -96,7 +111,7 @@ const useCache = create<Cache>((set, getState) => ({
       return;
     }
     const default_crosshair = state.cur;
-    store.set("default_crosshair", default_crosshair);
+    useConfigStore.getState().updateBehavior({ default_crosshair: default_crosshair });
     state.setDefaultCrosshair(default_crosshair);
   },
   switchToCrosshairByPath: (filepath?: string) => {

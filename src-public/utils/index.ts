@@ -91,7 +91,15 @@ type InvokeMap = {
   create_url_crosshair: {
     args: { path: string, content: string };
     returns: void;
-  }
+  };
+  load_config: {
+    args: undefined;
+    returns: string;
+  };
+  save_config: {
+    args: { json: string };
+    returns: void;
+  };
 };
 
 /**

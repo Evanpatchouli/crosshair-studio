@@ -37,7 +37,9 @@ fn main() {
             handler::get_locales,
             handler::get_locale_messages,
             handler::create_text_crosshair,
-            handler::create_url_crosshair
+            handler::create_url_crosshair,
+            handler::load_config,
+            handler::save_config
         ])
         .system_tray(system_tray)
         .on_system_tray_event(tray_handler)

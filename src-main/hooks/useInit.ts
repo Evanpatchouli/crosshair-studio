@@ -3,13 +3,13 @@ import { os, path } from "@tauri-apps/api";
 import { checkIsDev, getMainWindow, getNameOfFilePath, images_sorter, invoke, sleep, watchCrosshairs } from "@utils/index";
 import useCache from "../cache";
 import store from "@public//store";
-import { version } from "../../package.json";
 import { useHotkeys } from "react-hotkeys-hook";
 import globalHotKeys from "../hotkeys/globalHotKeys";
 import toast from "react-hot-toast";
-import useLocalStorage from "@public/hooks/useLocalStorage";
 import { emit, listen } from "@tauri-apps/api/event";
 import * as share from "@public/plugins/tauri-plugin-share";
+import { useConfigStore, ensureSyncListener } from "@public/hooks/useConfig";
+import { type CrosshairStudioConfig, DEFAULT_CONFIG } from "@public/config/defaults";
 
 export default function useInit() {
   const cache = useCache();
@@ -39,27 +39,51 @@ export default function useInit() {
       cache.setIsQueryingImgs(false);
     }
   };
-  const [, store_crosshair_dir] = useLocalStorage<string>("crosshair_dir");
+
+
   useAsyncEffect(
     async () => {
       const timestart = performance.now();
+
+      // ──── 第一步：加载外置配置文件 ────
+      const configStore = useConfigStore.getState();
+      if (!configStore.loaded) {
+        await configStore.load();
+        // 启动 share 广播监听（接收来自控制台的配置变更）
+        await ensureSyncListener();
+      }
+      let config = useConfigStore.getState().config;
+
+      // ──── 第二步：首次运行 & 语言自动检测 ────
       const first_run = !(await store.get("not_first_run"));
       if (first_run) {
         await store.set("not_first_run", true);
-        // 形如 "zh-CN" 的字符串
         const os_locale = await os.locale() || "en-US";
         const locales = await invoke('get_locales');
-        // 从 locales 中找到与 os_locale 匹配的语言，locales 中的键名为 "zh-CN" 或 "zh_CN" 的形式 或 "zhCN"
         const matched_locale = matchLocale(os_locale, locales);
         localStorage.setItem("locale", JSON.stringify(matched_locale));
       }
 
-      await store.set("version", version);
-      // await store.set("crosshair_dictionary", "${APP_DIR}/crosshairs")
+      // ──── 第三步：迁移旧设置到配置文件 ────
+      const configVersion = await store.get("config_migrated" as any);
+      if (!configVersion) {
+        // 从 tauri-plugin-store 和 localStorage 读取旧值，合并到配置文件
+        const migratedConfig = await migrateOldSettings(config);
+        if (migratedConfig) {
+          config = migratedConfig;
+          await configStore.save(config);
+        }
+        await store.set("config_migrated" as any, "1.0");
+      }
+
+      // ──── 第四步：版本记录 ────
+      await store.set("version", __APP_VERSION__);
+
+      // ──── 第五步：准星目录解析 ────
       let crosshair_dir = "";
       const appDir = await invoke("get_appdir");
-      const stored_crosshair_dir = await store.get("crosshair_dictionary");
-      const default_crosshair_dir = "${APP_DIR}/crosshairs"; //await path.resolve(appDir, "crosshairs");
+      const configDirTemplate = config.behavior.crosshair_directory;
+      const default_crosshair_dir = "${APP_DIR}/crosshairs";
 
       let crosshair_under_appdir = "";
       if (checkIsDev()) {
@@ -68,21 +92,16 @@ export default function useInit() {
         crosshair_under_appdir = await path.resolve(appDir, "crosshairs");
       }
 
-      if (default_crosshair_dir === stored_crosshair_dir) {
-        // 默认为 "${APP_DIR}/crosshairs"
+      if (default_crosshair_dir === configDirTemplate || !configDirTemplate) {
         crosshair_dir = crosshair_under_appdir;
       } else {
-        // 用户更改了 crosshair_dictionary
-        crosshair_dir = await path.resolve(stored_crosshair_dir || default_crosshair_dir);
+        crosshair_dir = await path.resolve(configDirTemplate);
       }
 
-      await store.set(
-        "crosshair_dictionary",
-        default_crosshair_dir === stored_crosshair_dir ? default_crosshair_dir : crosshair_dir
-      );
+      // 注意：配置文件中保留 `${APP_DIR}/crosshairs` 占位符，不写回解析后的绝对路径
       cache.set_crosshair_dictionary(crosshair_dir);
-      store_crosshair_dir(crosshair_dir);
 
+      // ──── 第六步：设置准星文件监听 ────
       const unWatch = await watchCrosshairs((images) => {
         const paths = images.map((it) => it.path);
         cache.setImglist((paths || [])
@@ -97,61 +116,42 @@ export default function useInit() {
         immediate: false
       })
 
-      const default_crosshair = await store.get("default_crosshair");
+      // ──── 第七步：从配置读取行为参数 ────
+      const default_crosshair = config.behavior.default_crosshair;
       cache.setDefaultCrosshair(default_crosshair, true);
       cache.switchToCrosshairByPath(default_crosshair);
 
+      // 置顶 & 穿透状态从配置初始化
+      cache.setAlwaysOnTop(config.behavior.always_on_top);
+      cache.setIgnoreCursorEvents(config.behavior.ignore_cursor_events);
+
       await Promise.all([
-        getMainWindow()?.setIgnoreCursorEvents(cache.ignoreCursorEvents),
-        store.set("ignoreCursorEvents", cache.ignoreCursorEvents)
+        getMainWindow()?.setIgnoreCursorEvents(config.behavior.ignore_cursor_events),
+        getMainWindow()?.setAlwaysOnTop(config.behavior.always_on_top),
       ])
 
-      let hotkeys_togglePinned = globalHotKeys.togglePinned.defaultKeys;
-      let hotkeys_toggleIgnoreCursorEvents = globalHotKeys.toggleIgnoreCursorEvents.defaultKeys;
-      let hotkeys_switchCrosshair = globalHotKeys.switchCrosshair.defaultKeys;
-      let hotkeys_switchToDefaultCrosshair = globalHotKeys.switchToDefaultCrosshair.defaultKeys;
-      let hotkeys_setCurrentCrosshairAsDefault = globalHotKeys.setCurrentCrosshairAsDefault.defaultKeys;
-      let hotkeys_openMonitor = globalHotKeys.openMonitor.defaultKeys;
-      let hotkeys_reload = globalHotKeys.reload.defaultKeys;
-      let hotkeys_exit = globalHotKeys.exit.defaultKeys;
+      // ──── 第八步：从配置读取快捷键并注册 ────
+      const hotkeyMap: Array<{ action: keyof typeof globalHotKeys; configKey: keyof typeof config.hotkeys }> = [
+        { action: "togglePinned", configKey: "toggle_pinned" },
+        { action: "toggleIgnoreCursorEvents", configKey: "toggle_ignore_cursor_events" },
+        { action: "switchCrosshair", configKey: "switch_crosshair" },
+        { action: "switchToDefaultCrosshair", configKey: "switch_to_default_crosshair" },
+        { action: "setCurrentCrosshairAsDefault", configKey: "set_current_crosshair_as_default" },
+        { action: "openMonitor", configKey: "open_monitor" },
+        { action: "reload", configKey: "reload" },
+        { action: "exit", configKey: "exit" },
+      ];
 
-      if (first_run) {
-        await store.set('hotkeys_togglePinned', hotkeys_togglePinned);
-        await store.set('hotkeys_toggleIgnoreCursorEvents', hotkeys_toggleIgnoreCursorEvents);
-        await store.set('hotkeys_switchCrosshair', hotkeys_switchCrosshair);
-        await store.set('hotkeys_switchToDefaultCrosshair', hotkeys_switchToDefaultCrosshair);
-        await store.set('hotkeys_setCurrentCrosshairAsDefault', hotkeys_setCurrentCrosshairAsDefault);
-        await store.set('hotkeys_openMonitor', hotkeys_openMonitor);
-        await store.set('hotkeys_reload', hotkeys_reload);
-        await store.set('hotkeys_exit', hotkeys_exit);
-      } else {
-        hotkeys_togglePinned = (await store.get('hotkeys_togglePinned')) || [];
-        globalHotKeys.togglePinned.keys = hotkeys_togglePinned;
-        hotkeys_toggleIgnoreCursorEvents = (await store.get('hotkeys_toggleIgnoreCursorEvents')) || [];
-        globalHotKeys.toggleIgnoreCursorEvents.keys = hotkeys_toggleIgnoreCursorEvents;
-        hotkeys_switchCrosshair = (await store.get('hotkeys_switchCrosshair')) || [];
-        globalHotKeys.switchCrosshair.keys = hotkeys_switchCrosshair;
-        hotkeys_switchToDefaultCrosshair = (await store.get('hotkeys_switchToDefaultCrosshair')) || [];
-        globalHotKeys.switchToDefaultCrosshair.keys = hotkeys_switchToDefaultCrosshair;
-        hotkeys_setCurrentCrosshairAsDefault = (await store.get('hotkeys_setCurrentCrosshairAsDefault')) || [];
-        globalHotKeys.setCurrentCrosshairAsDefault.keys = hotkeys_setCurrentCrosshairAsDefault;
-        hotkeys_openMonitor = (await store.get('hotkeys_openMonitor')) || [];
-        globalHotKeys.openMonitor.keys = hotkeys_openMonitor;
-        hotkeys_reload = (await store.get('hotkeys_reload')) || [];
-        globalHotKeys.reload.keys = hotkeys_reload;
-        hotkeys_exit = (await store.get('hotkeys_exit')) || [];
-        globalHotKeys.exit.keys = hotkeys_exit;
+      // 从配置文件读取快捷键到 globalHotKeys
+      for (const { action, configKey } of hotkeyMap) {
+        const keys = config.hotkeys[configKey] || DEFAULT_CONFIG.hotkeys[configKey];
+        globalHotKeys[action].keys = [...keys];
       }
 
-      await share.set('hotkeys_togglePinned', hotkeys_togglePinned);
-      await share.set('hotkeys_toggleIgnoreCursorEvents', hotkeys_toggleIgnoreCursorEvents);
-      await share.set('hotkeys_switchCrosshair', hotkeys_switchCrosshair);
-      await share.set('hotkeys_switchToDefaultCrosshair', hotkeys_switchToDefaultCrosshair);
-      await share.set('hotkeys_setCurrentCrosshairAsDefault', hotkeys_setCurrentCrosshairAsDefault);
-      await share.set('hotkeys_openMonitor', hotkeys_openMonitor);
-      await share.set('hotkeys_reload', hotkeys_reload);
-      await share.set('hotkeys_exit', hotkeys_exit);
+      // 同步快捷键到 share 插件（跨窗口可见）
+      await syncHotkeysToShare(config);
 
+      // 注册所有全局快捷键
       try {
         await Promise.all([
           globalHotKeys.togglePinned.register(cache),
@@ -171,19 +171,20 @@ export default function useInit() {
         })
       }
 
+      // ──── 第九步：监听快捷键变更事件 ────
+      // 注：配置文件写入由 Hotkey 组件直接完成，此处仅负责跨窗口同步和重新注册
       await listen(`register_hotkeys`, (e) => {
         const { keys, action } = e.payload as {
           keys: string[],
           action: keyof typeof globalHotKeys
         };
-        const actionKey = `hotkeys_${action}` as any;
         globalHotKeys[action].keys = keys;
-        store.set(actionKey, globalHotKeys[action].keys);
-        share.set(actionKey, globalHotKeys[action].keys);
+        share.set(`hotkeys_${action}` as any, keys);
         if (keys.length !== 0) {
           globalHotKeys[action].register(cache);
         }
-      })
+      });
+
       await listen(`unregister_hotkeys`, (e) => {
         const { action } = e.payload as {
           action: keyof typeof globalHotKeys
@@ -191,6 +192,7 @@ export default function useInit() {
         globalHotKeys[action].unregister();
       })
 
+      // ──── 第十步：初始化准星方案（保留在 store 中）────
       const schemes = await store.get('schemes');
       if (schemes === void 0) {
         store.set('schemes', []);
@@ -223,9 +225,94 @@ export default function useInit() {
   return isInitiated;
 }
 
+// ── 辅助函数 ──
+
 function matchLocale(source_locale: string, locales: Record<string, string>) {
   return Object.keys(locales).find(locale => {
     const regex = new RegExp(`^${locale.replace(/[-_]/g, "[-_]?")}$`, "i");
     return regex.test(source_locale);
   }) || "en_US";
+}
+
+async function syncHotkeysToShare(config: CrosshairStudioConfig) {
+  await share.set('hotkeys_togglePinned', config.hotkeys.toggle_pinned);
+  await share.set('hotkeys_toggleIgnoreCursorEvents', config.hotkeys.toggle_ignore_cursor_events);
+  await share.set('hotkeys_switchCrosshair', config.hotkeys.switch_crosshair);
+  await share.set('hotkeys_switchToDefaultCrosshair', config.hotkeys.switch_to_default_crosshair);
+  await share.set('hotkeys_setCurrentCrosshairAsDefault', config.hotkeys.set_current_crosshair_as_default);
+  await share.set('hotkeys_openMonitor', config.hotkeys.open_monitor);
+  await share.set('hotkeys_reload', config.hotkeys.reload);
+  await share.set('hotkeys_exit', config.hotkeys.exit);
+}
+
+/**
+ * 迁移旧设置：读取 tauri-plugin-store 和 localStorage 中的旧值，
+ * 合并到当前配置中返回新配置。
+ */
+async function migrateOldSettings(currentConfig: CrosshairStudioConfig): Promise<CrosshairStudioConfig | null> {
+  let changed = false;
+  const config = JSON.parse(JSON.stringify(currentConfig)) as CrosshairStudioConfig;
+
+  // ── 从 tauri-plugin-store 迁移 ──
+  try {
+    const oldDefaultCrosshair = await store.get("default_crosshair");
+    if (oldDefaultCrosshair && !config.behavior.default_crosshair) {
+      config.behavior.default_crosshair = oldDefaultCrosshair;
+      changed = true;
+    }
+
+    const oldIgnoreCursorEvents = await store.get("ignoreCursorEvents");
+    if (oldIgnoreCursorEvents !== undefined && oldIgnoreCursorEvents !== null) {
+      config.behavior.ignore_cursor_events = oldIgnoreCursorEvents as boolean;
+      changed = true;
+    }
+
+    // 迁移旧快捷键
+    const hotkeyMigrations: Array<{ storeKey: string; configKey: keyof typeof config.hotkeys }> = [
+      { storeKey: "hotkeys_togglePinned", configKey: "toggle_pinned" },
+      { storeKey: "hotkeys_toggleIgnoreCursorEvents", configKey: "toggle_ignore_cursor_events" },
+      { storeKey: "hotkeys_switchCrosshair", configKey: "switch_crosshair" },
+      { storeKey: "hotkeys_switchToDefaultCrosshair", configKey: "switch_to_default_crosshair" },
+      { storeKey: "hotkeys_setCurrentCrosshairAsDefault", configKey: "set_current_crosshair_as_default" },
+      { storeKey: "hotkeys_openMonitor", configKey: "open_monitor" },
+      { storeKey: "hotkeys_reload", configKey: "reload" },
+      { storeKey: "hotkeys_exit", configKey: "exit" },
+    ];
+
+    for (const { storeKey, configKey } of hotkeyMigrations) {
+      try {
+        const oldHotkey = await store.get(storeKey as any);
+        if (oldHotkey && Array.isArray(oldHotkey) && oldHotkey.length > 0) {
+          config.hotkeys[configKey] = oldHotkey as string[];
+          changed = true;
+        }
+      } catch { /* 该快捷键无旧值 */ }
+    }
+  } catch { /* store 读取失败，跳过迁移 */ }
+
+  // ── 从 localStorage 迁移 ──
+  try {
+    const migrateLocal = <T,>(key: string, setter: (val: T) => void) => {
+      const raw = localStorage.getItem(key);
+      if (raw !== null && raw !== undefined) {
+        try {
+          const val = JSON.parse(raw) as T;
+          if (val !== null && val !== undefined) {
+            setter(val);
+            changed = true;
+          }
+        } catch { /* parse 失败跳过 */ }
+      }
+    };
+
+    migrateLocal<number>("crosshair_width", (v) => { config.crosshair.width = v; });
+    migrateLocal<number>("crosshair_height", (v) => { config.crosshair.height = v; });
+    migrateLocal<boolean>("crosshair_lock_ratio", (v) => { config.crosshair.lock_ratio = v; });
+    migrateLocal<number>("canvas_size", (v) => { config.crosshair.canvas_size = v; });
+    migrateLocal<"rect" | "circle">("canvas_shape", (v) => { config.crosshair.canvas_shape = v; });
+    migrateLocal<boolean>("enable_canvas_invert_filter", (v) => { config.crosshair.enable_invert_filter = v; });
+    migrateLocal<boolean>("enable_system_notification", (v) => { config.enable_system_notification = v; });
+  } catch { /* localStorage 读取失败，跳过迁移 */ }
+
+  return changed ? config : null;
 }

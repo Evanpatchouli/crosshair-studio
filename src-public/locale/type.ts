@@ -134,4 +134,5 @@ export type TextKey = "Locale" |
   "Name already exists" |
   "Invalid URL" |
   "URL must end with.png,.jpg,.jpeg,.gif,.svg,.txt,.url" |
-  "#Help"
+  "#Help" |
+  "Config file has been saved to config.json in the app directory. Manual edits to this file will only take effect after restarting the app."

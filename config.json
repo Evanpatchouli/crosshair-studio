@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "crosshair": {
+    "width": 200,
+    "height": 200,
+    "lock_ratio": true,
+    "canvas_size": 200,
+    "canvas_shape": "rect",
+    "enable_invert_filter": false
+  },
+  "behavior": {
+    "ignore_cursor_events": true,
+    "always_on_top": true,
+    "crosshair_directory": "D:\\Work\\crosshair-studio\\crosshairs",
+    "default_crosshair": "1.png"
+  },
+  "hotkeys": {
+    "switch_crosshair": [
+      "CommandOrControl",
+      "Alt",
+      "Q"
+    ],
+    "toggle_pinned": [
+      "Alt",
+      "CommandOrControl",
+      "P"
+    ],
+    "toggle_ignore_cursor_events": [],
+    "switch_to_default_crosshair": [
+      "Alt",
+      "CommandOrControl",
+      "D"
+    ],
+    "set_current_crosshair_as_default": [
+      "CommandOrControl",
+      "Alt",
+      "S"
+    ],
+    "open_monitor": [
+      "CommandOrControl",
+      "Alt",
+      "C"
+    ],
+    "reload": [
+      "CommandOrControl",
+      "Alt",
+      "R"
+    ],
+    "exit": [
+      "CommandOrControl",
+      "Alt",
+      "E"
+    ]
+  },
+  "enable_system_notification": true
+}

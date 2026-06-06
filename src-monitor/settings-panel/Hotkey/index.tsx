@@ -6,6 +6,20 @@ import useLocale from "@public/hooks/uselocale";
 import { useShare } from "@public/plugins/tauri-plugin-share";
 import { emit } from "@tauri-apps/api/event";
 import { useRef, useState, useEffect } from "react";
+import { useConfigStore } from "@public/hooks/useConfig";
+import type { HotkeysConfig } from "@public/config/defaults";
+
+/** 快捷键 action 到配置文件中 key 的映射 */
+const actionToConfigKey: Record<string, keyof HotkeysConfig> = {
+  togglePinned: "toggle_pinned",
+  toggleIgnoreCursorEvents: "toggle_ignore_cursor_events",
+  switchCrosshair: "switch_crosshair",
+  switchToDefaultCrosshair: "switch_to_default_crosshair",
+  setCurrentCrosshairAsDefault: "set_current_crosshair_as_default",
+  openMonitor: "open_monitor",
+  reload: "reload",
+  exit: "exit",
+};
 
 export default function Hotkey(props: {
   id?: string;
@@ -28,6 +42,12 @@ export default function Hotkey(props: {
   const [hotkey, setHotkey] = useShare<string[]>(actionKey);
 
   const syncHotkey = async () => {
+    // 直接写入配置文件（持久化）
+    const configKey = actionToConfigKey[action];
+    if (configKey) {
+      await useConfigStore.getState().updateHotkey(configKey, hotkey);
+    }
+    // 通知主窗口重新注册快捷键
     await emit(`register_hotkeys`, {
       action: action,
       keys: hotkey,

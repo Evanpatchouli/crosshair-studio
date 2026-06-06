@@ -194,3 +194,103 @@ pub fn create_text_crosshair(path: &str, content: &str) -> Result<(), String> {
 pub fn create_url_crosshair(path: &str, content: &str) -> Result<(), String> {
     write_file(path, content)
 }
+
+/// 获取配置文件路径。
+/// 开发模式：与 crosshairs 同级（项目根目录 config.json）
+/// 生产模式：与 crosshairs 同级（应用安装目录 config.json）
+fn get_config_path() -> std::path::PathBuf {
+    let mut app_dir = env::current_dir().expect("Failed to get app directory");
+    if env::var("TAURI_DEV").is_ok() {
+        // dev 模式 CWD 是 src-tauri/，需回退到项目根以与 crosshairs 对齐
+        app_dir = app_dir
+            .parent()
+            .unwrap_or(&app_dir)
+            .to_path_buf();
+    }
+    app_dir.join("config.json")
+}
+
+/// 默认配置 JSON 字符串
+fn default_config_json() -> &'static str {
+    r#"{
+  "version": "1.0",
+  "crosshair": {
+    "width": 200,
+    "height": 200,
+    "lock_ratio": true,
+    "canvas_size": 200,
+    "canvas_shape": "rect",
+    "enable_invert_filter": false
+  },
+  "behavior": {
+    "ignore_cursor_events": true,
+    "always_on_top": true,
+    "crosshair_directory": "${APP_DIR}/crosshairs",
+    "default_crosshair": ""
+  },
+  "hotkeys": {
+    "switch_crosshair": ["CommandOrControl", "Alt", "Q"],
+    "toggle_pinned": ["CommandOrControl", "Alt", "P"],
+    "toggle_ignore_cursor_events": [],
+    "switch_to_default_crosshair": ["CommandOrControl", "Alt", "D"],
+    "set_current_crosshair_as_default": ["CommandOrControl", "Alt", "S"],
+    "open_monitor": ["CommandOrControl", "Alt", "C"],
+    "reload": ["CommandOrControl", "Alt", "R"],
+    "exit": ["CommandOrControl", "Alt", "E"]
+  },
+  "enable_system_notification": false
+}"#
+}
+
+#[tauri::command]
+pub fn load_config() -> Result<String, String> {
+    let config_path = get_config_path();
+    if !config_path.exists() {
+        // 配置文件不存在时创建默认配置
+        let default_json = default_config_json();
+        match std::fs::File::create(&config_path) {
+            Ok(mut file) => {
+                if let Err(e) = file.write_all(default_json.as_bytes()) {
+                    logger::errorMsg(&format!("Failed to write default config: {}", e));
+                    return Err(format!("Failed to write default config: {}", e));
+                }
+            }
+            Err(e) => {
+                logger::errorMsg(&format!("Failed to create config file: {}", e));
+                return Err(format!("Failed to create config file: {}", e));
+            }
+        }
+        return Ok(default_json.to_string());
+    }
+    // 读取已有配置文件
+    match std::fs::read_to_string(&config_path) {
+        Ok(content) => Ok(content),
+        Err(e) => {
+            logger::errorMsg(&format!("Failed to read config file: {}", e));
+            Err(format!("Failed to read config file: {}", e))
+        }
+    }
+}
+
+#[tauri::command]
+pub fn save_config(json: &str) -> Result<(), String> {
+    // 先验证 JSON 格式
+    let _: serde_json::Value = match serde_json::from_str(json) {
+        Ok(v) => v,
+        Err(e) => {
+            return Err(format!("Invalid JSON format: {}", e));
+        }
+    };
+    let config_path = get_config_path();
+    match std::fs::File::create(&config_path) {
+        Ok(mut file) => {
+            if let Err(e) = file.write_all(json.as_bytes()) {
+                return Err(format!("Failed to write config file: {}", e));
+            }
+        }
+        Err(e) => {
+            return Err(format!("Failed to create config file: {}", e));
+        }
+    }
+    Ok(())
+}

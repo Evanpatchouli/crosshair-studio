@@ -3,6 +3,7 @@ import { type Cache } from "../cache";
 import { getMonitorWindow, isRegistered, register, unregister } from "@utils/index";
 import toast from "react-hot-toast";
 import { emit } from "@tauri-apps/api/event";
+import { flushConfigToFile } from "@public/hooks/useConfig";
 
 const globalHotKeys = {
   switchCrosshair: {
@@ -356,8 +357,10 @@ const globalHotKeys = {
     defaultKeys: ["CommandOrControl", "Alt", "E"] as ["CommandOrControl", "Alt", "E"],
     keys: ["CommandOrControl", "Alt", "E"],
     handler: () => {
-      // do something before exit...
-      exit();
+      // 退出前将内存中的配置回写到 config.json
+      flushConfigToFile().finally(() => {
+        exit();
+      });
     },
     async register() {
       try {

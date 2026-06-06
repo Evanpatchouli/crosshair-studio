@@ -1,4 +1,4 @@
-import { Box, Chip, Divider, IconButton, Stack, styled, Switch, Typography } from "@mui/material";
+import { Alert, Box, Chip, Divider, IconButton, Stack, styled, Switch, Typography } from "@mui/material";
 import Label from "@public/components/Lable";
 import useLocale from "@public/hooks/uselocale";
 import useLocalStorage from "@public/hooks/useLocalStorage";
@@ -13,6 +13,7 @@ import ThemeSelector from "./theme-selector";
 import Hotkey from "./Hotkey";
 import CheckUpdate from "./check-update";
 import CrosshairBgSelector from "./crosshairBgSelector";
+import { useConfigStore } from "@public/hooks/useConfig";
 
 const Item = styled(Box)(() => {
   return {
@@ -24,10 +25,9 @@ const Item = styled(Box)(() => {
 
 export default function SettingsPanel() {
   const $ = useLocale();
-  const [enable_system_notification, setEnableSystemNotification] = useLocalStorage<boolean>(
-    "enable_system_notification",
-    false
-  );
+  // 从外置配置文件读取通知开关
+  const enable_system_notification = useConfigStore((s) => s.config.enable_system_notification);
+  const updateScalar = useConfigStore((s) => s.updateScalar);
   const [crosshair_dir] = useLocalStorage<string>("crosshair_dir");
   const show_in_fs = (path: string) => {
     return () => {
@@ -53,6 +53,9 @@ export default function SettingsPanel() {
   return (
     <>
       <h2>{$("Settings Panel")}</h2>
+      <Alert severity="info" sx={{ mb: 1, mx: 2 }}>
+        {$("Config file has been saved to config.json in the app directory. Manual edits to this file will only take effect after restarting the app.")}
+      </Alert>
       <Stack
         width="100%"
         boxSizing="border-box"
@@ -94,7 +97,7 @@ export default function SettingsPanel() {
               id="enable_system_notification"
               checked={enable_system_notification}
               onChange={(_e, checked) => {
-                setEnableSystemNotification(checked);
+                updateScalar("enable_system_notification", checked);
               }}
             />
           </Item>

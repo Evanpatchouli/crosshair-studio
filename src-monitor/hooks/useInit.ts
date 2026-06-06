@@ -5,6 +5,7 @@ import { invoke } from "@public/utils";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import { toast } from '../utils/index';
+import { useConfigStore, ensureSyncListener } from "@public/hooks/useConfig";
 
 export default function useInit() {
   const $ = useLocale();
@@ -13,6 +14,14 @@ export default function useInit() {
   const unListenRegisterHotkeysErrorRef = useRef<any>(null);
   const unListenToastRef = useRef<any>(null);
   const init = async () => {
+    // ── 加载外置配置（如果主窗口尚未加载，则从 config.json 读取并写入 share）──
+    const configStore = useConfigStore.getState();
+    if (!configStore.loaded) {
+      await configStore.load();
+      // 启动 share 广播监听（接收来自主窗口的配置变更）
+      await ensureSyncListener();
+    }
+
     try {
       const list = await schemes.all();
       set_crosshair_schemes(list);

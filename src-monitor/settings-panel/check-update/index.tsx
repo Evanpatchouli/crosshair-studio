@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import Flex from "@public/components/Flex";
 import { compareVersion } from "@public/utils";
-import { info } from "../../../package.json";
 import fetch from "@public/utils/fetch";
 import useLocale from "@public/hooks/uselocale";
 import { useState } from "react";
@@ -49,7 +48,7 @@ export default function CheckUpdate() {
           const latest_version = resp.tag_name;
           setLatestVersion(latest_version);
           setHtmlURL(resp.html_url);
-          const shouldUpdate = compareVersion(info.version, latest_version) < 0;
+          const shouldUpdate = compareVersion(__APP_VERSION__, latest_version) < 0;
           if (shouldUpdate) {
             setText($("Latest Version: ${v}").replace("${v}", latest_version));
             setOpen(true);

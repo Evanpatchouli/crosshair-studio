@@ -1,7 +1,7 @@
 import { Box, Stack } from "@mui/material";
 import Logo from "/logo.svg";
 import { os as OS } from "@tauri-apps/api";
-import { info, dependencies, devDependencies } from "../../package.json";
+import { dependencies, devDependencies } from "../../package.json";
 import useAsyncEffect from "@public/hooks/useAsyncEffect";
 import { useState } from "react";
 import useLocale from "@public/hooks/uselocale";
@@ -24,15 +24,15 @@ export default function About() {
         <Stack pl="0.5rem">
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem">
             <span>{$("Version")}: </span>
-            <span>{info.version}</span>
+            <span>{__APP_VERSION__}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>
             <span>{$("Commit")}: </span>
-            <span>{info.commit}</span>
+            <span>{__GIT_COMMIT__}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>
             <span>{$("Datetime")}: </span>
-            <span>{new Date(info.datetime).toLocaleString()}</span>
+            <span>{new Date(__BUILD_TIME__).toLocaleString()}</span>
           </Box>
           <Box display="flex" flexDirection="row" alignItems="center" gap="0.5rem" mt={2}>
             <span>Tauri: </span>
