@@ -51,7 +51,7 @@ The Crosshair Studio software itself and its resource files are located in the i
 - [x] Full hotkey support
 - [x] Enable console
 - [x] Multi-language support
-- [ ] External configuration file
+- [x] External configuration file
 - [ ] Cross-platform support
 
 ## Contribution
